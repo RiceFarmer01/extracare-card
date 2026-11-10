@@ -87,7 +87,11 @@ const WALLET_URL = 'https://ricefarmer01.github.io/extracare-card/#b=';
 // literals so GitHub push protection doesn't block the deploy.
 const GH_REPO = 'RiceFarmer01/extracare-card';
 const GH_TOKEN = ['github_', 'pat_11ATWGF7I08CNb32gMvUV7_vVJI5JW1lS4tk5HSM6gBevNTfSnGwMeLaUrXSMPdFxiNHE3BSLVWjTBt8Bt'].join('');
-let soldRemote = [];   // last known sold.json from GitHub
+let soldRemote = [];   // last known sold.json from the GitHub API (the truth)
+
+// bump on every deploy — open tabs detect the change and reload themselves,
+// so the plain shop.html URL is always the only link anyone needs
+const SHOP_VERSION = '2026-11-10.2';
 
 // simple password gate (SHA-256 hash compare, cookie for session)
 async function sha256(s) {
@@ -118,20 +122,50 @@ function showShop() {
   document.getElementById('gate').classList.add('hidden');
   document.getElementById('shop').style.display = '';
   loadCards();
-  // live auto-refresh every 60s
+  // live auto-refresh every 60s (data + bot status + code updates)
   setInterval(loadCards, 60000);
   setInterval(loadLiveStatus, 60000);
+  setInterval(checkForUpdate, 60000);
   loadLiveStatus();
 }
 
-// live bot status from GitHub Pages
+// ---- data layer: GitHub API first (authoritative, instant), CDN fallback ----
+async function ghGetJSON(path) {
+  const r = await fetch(`https://api.github.com/repos/${GH_REPO}/contents/${path}`, {
+    headers: { Authorization: 'Bearer ' + GH_TOKEN, Accept: 'application/vnd.github.raw' },
+    cache: 'no-store'
+  });
+  if (r.status === 404) return [];   // file not created yet
+  if (!r.ok) throw new Error('GitHub API HTTP ' + r.status);
+  const txt = await r.text();
+  return txt ? JSON.parse(txt) : [];
+}
+
+async function fetchJSON(path) {
+  if (GH_TOKEN) {
+    try { return await ghGetJSON(path); } catch (e) { /* fall back to CDN */ }
+  }
+  const r = await fetch(path, { cache: 'no-store' });
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return await r.json();
+}
+
+// ---- self-update: open tabs reload when a new version is deployed ----
+async function checkForUpdate() {
+  try {
+    const r = await fetch('shop.html', { cache: 'no-store' });
+    if (!r.ok) return;
+    const m = (await r.text()).match(/SHOP_VERSION = '([^']+)'/);
+    if (m && m[1] !== SHOP_VERSION) location.reload();
+  } catch (e) { /* offline is fine */ }
+}
+
+// live bot status
 async function loadLiveStatus() {
   try {
-    const r = await fetch('live_status.json', {cache: 'no-store'});
-    if (!r.ok) return;
-    const s = await r.json();
+    const s = await fetchJSON('live_status.json');
     const el = document.getElementById('lastUpdate');
-    if (el && s.kept !== undefined) {
+    if (el && s && s.kept !== undefined) {
       el.innerHTML = `⚡ <strong>LIVE</strong> — ${s.checked.toLocaleString()} checks, ` +
         `${s.kept} kept ($${s.dollars.toFixed(2)}) — updated ${s.updated}`;
       el.style.color = '#3fb950';
@@ -146,8 +180,7 @@ let showSold = false;
 
 async function loadCards() {
   try {
-    const r = await fetch('stocked.json', { cache: 'no-store' });
-    cards = await r.json();
+    cards = await fetchJSON('stocked.json');
     const sold = new Set(await loadSold());
     cards.forEach(c => c._sold = sold.has(c.card));
     render();
@@ -241,18 +274,65 @@ function copyLink(card, barcode) {
   }
 }
 
-// ---- sold-state persistence (sold.json in the repo + localStorage offline fallback) ----
+// ---- sold-state persistence ----
+// SERVER IS THE SOURCE OF TRUTH. localStorage holds only:
+//   soldCache  — display copy of the server state (offline fallback)
+//   soldPending — {card: {sold, t}} changes that never reached the server
+//                 (marked offline); auto-pushed when connectivity returns,
+//                 expired after 10 min so a stale device can't override the server
+function localState() {
+  try { return JSON.parse(localStorage.getItem('soldCache') || '[]'); } catch (e) { return []; }
+}
+function pendingState() {
+  try { return JSON.parse(localStorage.getItem('soldPending') || '{}'); } catch (e) { return {}; }
+}
+function applyPending(list, pending) {
+  const s = new Set(list);
+  for (const [card, ch] of Object.entries(pending)) s[ch.sold ? 'add' : 'delete'](card);
+  return [...s];
+}
+function prunePending(pending) {
+  const cutoff = Date.now() - 10 * 60 * 1000;
+  const out = {};
+  for (const [card, ch] of Object.entries(pending)) if (ch.t > cutoff) out[card] = ch;
+  return out;
+}
+// one-time: migrate marks made before the server-sync existed (they were
+// device-only and never reached the server — treat them as pending)
+(function migrateLegacySold() {
+  const legacy = localStorage.getItem('soldCards');
+  if (legacy === null) return;
+  const p = pendingState();
+  try { JSON.parse(legacy).forEach(card => { if (!(card in p)) p[card] = { sold: true, t: Date.now() }; }); } catch (e) {}
+  localStorage.setItem('soldPending', JSON.stringify(p));
+  localStorage.removeItem('soldCards');
+})();
+
 async function loadSold() {
-  let remote = [];
-  try {
-    const r = await fetch('sold.json', { cache: 'no-store' });
-    if (r.ok) remote = await r.json();
-  } catch (e) { /* offline */ }
-  soldRemote = remote;
-  const local = JSON.parse(localStorage.getItem('soldCards') || '[]');
-  const merged = [...new Set([...remote, ...local])];
-  localStorage.setItem('soldCards', JSON.stringify(merged));
-  return merged;
+  if (GH_TOKEN) {
+    try {
+      const remote = await ghGetJSON('sold.json');          // authoritative
+      let pending = prunePending(pendingState());
+      let merged = applyPending(remote, pending);
+      if (Object.keys(pending).length) {
+        // this device had unsynced marks — push them on top of the server state
+        if (await ghPut('sold.json', JSON.stringify(merged, null, 2), 'shop: sync offline sold marks')) {
+          pending = {};
+          soldRemote = merged;
+        } else soldRemote = remote;
+      } else soldRemote = remote;
+      localStorage.setItem('soldCache', JSON.stringify(merged));
+      localStorage.setItem('soldPending', JSON.stringify(pending));
+      return merged;
+    } catch (e) { /* API unreachable — fall through to offline view */ }
+  } else {
+    try {
+      const r = await fetch('sold.json', { cache: 'no-store' });
+      if (r.ok) { soldRemote = await r.json(); return soldRemote; }
+    } catch (e) { /* offline */ }
+  }
+  // offline: show cache + pending intent, never re-push without knowing the server state
+  return applyPending(localState(), pendingState());
 }
 
 async function ghPut(path, content, msg) {
@@ -284,16 +364,34 @@ function toast(text, ok) {
 async function markSold(card, sold) {
   const c = cards.find(x => x.card === card);
   if (c) c._sold = sold;
-  // authoritative list = union of remote + local, with this change applied
-  const union = [...new Set([...soldRemote, ...JSON.parse(localStorage.getItem('soldCards') || '[]')])];
-  const list = sold ? [...new Set([...union, card])] : union.filter(x => x !== card);
-  localStorage.setItem('soldCards', JSON.stringify(list));
-  soldRemote = list;   // optimistic; corrected on next load if the push fails
+  // optimistic view (cache only — never the truth)
+  const view = applyPending(soldRemote, pendingState());
+  const next = sold ? [...new Set([...view, card])] : view.filter(x => x !== card);
+  localStorage.setItem('soldCache', JSON.stringify(next));
   render();
   if (!GH_TOKEN) { toast('saved on this device only', false); return; }
-  const ok = await ghPut('sold.json', JSON.stringify(list, null, 2),
-    'shop: ' + (sold ? 'used ' : 'undo ') + card);
-  toast(ok ? '☁️ synced everywhere' : '⚠️ offline — saved locally', ok);
+  try {
+    // read-modify-write: fetch the server's CURRENT state, apply the change on
+    // top of it, push back — no device ever clobbers another's marks
+    const serverList = await ghGetJSON('sold.json');
+    const pending = pendingState();
+    const base = applyPending(serverList, pending);
+    const nextServer = sold ? [...new Set([...base, card])] : base.filter(x => x !== card);
+    const ok = await ghPut('sold.json', JSON.stringify(nextServer, null, 2),
+                           'shop: ' + (sold ? 'used ' : 'undo ') + card);
+    if (ok) {
+      soldRemote = nextServer;
+      localStorage.setItem('soldPending', '{}');
+      localStorage.setItem('soldCache', JSON.stringify(nextServer));
+      toast('☁️ synced everywhere', true);
+    } else throw new Error('push failed');
+  } catch (e) {
+    // offline: queue the change; it goes out with the next successful load/push
+    const p = pendingState();
+    p[card] = { sold, t: Date.now() };
+    localStorage.setItem('soldPending', JSON.stringify(p));
+    toast('⚠️ offline — will sync', false);
+  }
 }
 
 function toggleSold() {
