@@ -91,7 +91,7 @@ let soldRemote = [];   // last known sold.json from the GitHub API (the truth)
 
 // bump on every deploy — open tabs detect the change and reload themselves,
 // so the plain shop.html URL is always the only link anyone needs
-const SHOP_VERSION = '2026-11-10.2';
+const SHOP_VERSION = '2026-11-10.3';
 
 // simple password gate (SHA-256 hash compare, cookie for session)
 async function sha256(s) {
@@ -213,9 +213,6 @@ function render() {
     <div class="stat"><div class="v">${visible.filter(c=>!c._sold).length}</div><div class="l">cards</div></div>
     <div class="stat"><div class="v" style="color:var(--green)">$${total.toFixed(2)}</div><div class="l">total</div></div>
     <div class="stat"><div class="v" style="color:var(--gold)">$${max.toFixed(2)}</div><div class="l">best</div></div>`;
-
-  document.getElementById('lastUpdate').textContent =
-    cards.length + ' cards · ' + (visible.filter(c=>!c._sold).length) + ' available · tap a card for its wallet page';
 
   const el = document.getElementById('cards');
   el.innerHTML = visible.map(c => {
