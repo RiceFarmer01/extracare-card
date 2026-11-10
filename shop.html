@@ -107,6 +107,25 @@ function showShop() {
   document.getElementById('gate').classList.add('hidden');
   document.getElementById('shop').style.display = '';
   loadCards();
+  // live auto-refresh every 60s
+  setInterval(loadCards, 60000);
+  setInterval(loadLiveStatus, 60000);
+  loadLiveStatus();
+}
+
+// live bot status from GitHub Pages
+async function loadLiveStatus() {
+  try {
+    const r = await fetch('live_status.json', {cache: 'no-store'});
+    if (!r.ok) return;
+    const s = await r.json();
+    const el = document.getElementById('lastUpdate');
+    if (el && s.kept !== undefined) {
+      el.innerHTML = `⚡ <strong>LIVE</strong> — ${s.checked.toLocaleString()} checks, ` +
+        `${s.kept} kept ($${s.dollars.toFixed(2)}) — updated ${s.updated}`;
+      el.style.color = '#3fb950';
+    }
+  } catch (e) { /* offline is fine */ }
 }
 
 // card data
