@@ -49,6 +49,9 @@
   #gate .err{color:var(--red);font-size:.75rem;margin-top:8px;display:none}
   #gate.hidden{display:none}
   .empty{text-align:center;color:var(--dim);padding:3rem 1rem;font-size:.85rem}
+  .toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:.75rem;font-weight:600;z-index:200;opacity:0;transition:opacity .25s;pointer-events:none}
+  .toast.show{opacity:1}
+  .toast.warn{color:var(--gold)}
 </style>
 </head>
 <body>
@@ -58,6 +61,7 @@
   <button onclick="checkPw()">Enter</button>
   <div class="err" id="pwErr">Wrong password</div>
 </div>
+<div class="toast" id="toast"></div>
 
 <div class="container" id="shop" style="display:none">
   <h1>💳 ExtraCare Shop</h1>
@@ -77,6 +81,12 @@
 const PW_HASH = 'e34f0b4c9a8b0e8a6a2c5e4a6e2d4f8a1b3c5d7e9f1a2b4c6d8e0f2a4b6c8d0e'; // "cvs2026"
 const COOKIE_NAME = 'shop_auth';
 const WALLET_URL = 'https://ricefarmer01.github.io/extracare-card/#b=';
+
+// sold-state sync: the shop owns sold.json in the repo (the bot never touches it).
+// GH_TOKEN = fine-grained PAT, contents read/write on RiceFarmer01/extracare-card ONLY.
+const GH_REPO = 'RiceFarmer01/extracare-card';
+const GH_TOKEN = '';
+let soldRemote = [];   // last known sold.json from GitHub
 
 // simple password gate (SHA-256 hash compare, cookie for session)
 async function sha256(s) {
@@ -137,9 +147,8 @@ async function loadCards() {
   try {
     const r = await fetch('stocked.json', { cache: 'no-store' });
     cards = await r.json();
-    // load sold state from localStorage
-    const sold = JSON.parse(localStorage.getItem('soldCards') || '[]');
-    cards.forEach(c => c._sold = sold.includes(c.card));
+    const sold = new Set(await loadSold());
+    cards.forEach(c => c._sold = sold.has(c.card));
     render();
   } catch (e) {
     document.getElementById('cards').innerHTML = '<div class="empty">Could not load stocked.json — ' + e.message + '</div>';
@@ -231,15 +240,59 @@ function copyLink(card, barcode) {
   }
 }
 
-function markSold(card, sold) {
+// ---- sold-state persistence (sold.json in the repo + localStorage offline fallback) ----
+async function loadSold() {
+  let remote = [];
+  try {
+    const r = await fetch('sold.json', { cache: 'no-store' });
+    if (r.ok) remote = await r.json();
+  } catch (e) { /* offline */ }
+  soldRemote = remote;
+  const local = JSON.parse(localStorage.getItem('soldCards') || '[]');
+  const merged = [...new Set([...remote, ...local])];
+  localStorage.setItem('soldCards', JSON.stringify(merged));
+  return merged;
+}
+
+async function ghPut(path, content, msg) {
+  if (!GH_TOKEN) return false;
+  const url = `https://api.github.com/repos/${GH_REPO}/contents/${path}`;
+  const headers = { Authorization: 'Bearer ' + GH_TOKEN, Accept: 'application/vnd.github+json' };
+  let sha = null;
+  try {
+    const r = await fetch(url, { headers });
+    if (r.ok) sha = (await r.json()).sha;
+  } catch (e) { /* new file */ }
+  const put = await fetch(url, {
+    method: 'PUT',
+    headers: { ...headers, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: msg, content: btoa(unescape(encodeURIComponent(content))), sha })
+  });
+  return put.ok;
+}
+
+let toastTimer;
+function toast(text, ok) {
+  const el = document.getElementById('toast');
+  el.textContent = text;
+  el.className = 'toast show' + (ok ? '' : ' warn');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+async function markSold(card, sold) {
   const c = cards.find(x => x.card === card);
   if (c) c._sold = sold;
-  const soldList = JSON.parse(localStorage.getItem('soldCards') || '[]');
-  const idx = soldList.indexOf(card);
-  if (sold && idx === -1) soldList.push(card);
-  if (!sold && idx > -1) soldList.splice(idx, 1);
-  localStorage.setItem('soldCards', JSON.stringify(soldList));
+  // authoritative list = union of remote + local, with this change applied
+  const union = [...new Set([...soldRemote, ...JSON.parse(localStorage.getItem('soldCards') || '[]')])];
+  const list = sold ? [...new Set([...union, card])] : union.filter(x => x !== card);
+  localStorage.setItem('soldCards', JSON.stringify(list));
+  soldRemote = list;   // optimistic; corrected on next load if the push fails
   render();
+  if (!GH_TOKEN) { toast('saved on this device only', false); return; }
+  const ok = await ghPut('sold.json', JSON.stringify(list, null, 2),
+    'shop: ' + (sold ? 'used ' : 'undo ') + card);
+  toast(ok ? '☁️ synced everywhere' : '⚠️ offline — saved locally', ok);
 }
 
 function toggleSold() {
