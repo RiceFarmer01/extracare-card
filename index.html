@@ -285,8 +285,11 @@ FontLib.loadFont("OCR-B", 96, 100, "AAEAAAAPAIAAAwBwRkZUTXxHn14AADmUAAAAHEdERUYA
     };
 }));
 </script>
-<script>window.__CARD_DATA__ = {"b": "4769001331181", "o": "15.33", "s": "0.00", "t": "Q2nmWyLWSe"};</script>
 <script>
+  // Card data comes ONLY from the URL hash (#b=<barcode>&o=<balance>&s=<spent>).
+  // The seller's server-injected __CARD_DATA__ mechanism was removed for this
+  // static GitHub Pages copy — a baked-in card made every link show the same
+  // (seller's) barcode and rewards.
   // Filled by the bot's "No iPhone?" link: /card#b=<13-digit barcode>&o=<total>&s=<loadable>&t=<short-link-token>
   // Fragment data never reaches the server. Only the token (if present)
   // is used to call /card_balance/{t} for a live refresh.
