@@ -41,6 +41,14 @@
   .verify-btn.done{color:var(--green)}
   .toggle-sold{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--border);color:var(--dim);border-radius:10px;padding:8px 20px;font-size:.75rem;font-weight:600;cursor:pointer;z-index:10;backdrop-filter:blur(10px)}
   .toggle-sold.showing{color:var(--gold)}
+  .runpanel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:.74rem;line-height:1.9}
+  .runpanel .r{display:flex;justify-content:space-between}
+  .runpanel .k{color:var(--dim)}
+  .runpanel .v{font-weight:700;font-variant-numeric:tabular-nums}
+  .runpanel .newcards{margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,.07)}
+  .runpanel .nc{display:flex;justify-content:space-between}
+  .badge.new{background:rgba(59,185,80,.22);color:var(--green);animation:pulse 1.6s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
   #gate{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;padding:2rem}
   #gate h2{color:var(--pink);font-size:1rem;margin-bottom:1rem}
   #gate input{background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:12px 16px;font-size:1rem;width:220px;text-align:center;margin-bottom:12px;outline:none}
@@ -66,6 +74,7 @@
 <div class="container" id="shop" style="display:none">
   <h1>💳 ExtraCare Shop</h1>
   <div class="sub" id="lastUpdate"></div>
+  <div class="runpanel" id="runPanel">⏳ run status loading…</div>
   <div class="summary" id="summary"></div>
   <div class="sort-bar" id="sortBar">
     <button class="sort-btn active" data-sort="balance">💰 Balance</button>
@@ -91,7 +100,7 @@ let soldRemote = [];   // last known sold.json from the GitHub API (the truth)
 
 // bump on every deploy — open tabs detect the change and reload themselves,
 // so the plain shop.html URL is always the only link anyone needs
-const SHOP_VERSION = '2026-11-10.3';
+const SHOP_VERSION = '2026-11-11.1';
 
 // simple password gate (SHA-256 hash compare, cookie for session)
 async function sha256(s) {
@@ -160,15 +169,35 @@ async function checkForUpdate() {
   } catch (e) { /* offline is fine */ }
 }
 
-// live bot status
+// live bot status + run panel
 async function loadLiveStatus() {
   try {
     const s = await fetchJSON('live_status.json');
     const el = document.getElementById('lastUpdate');
-    if (el && s && s.kept !== undefined) {
+    if (s && s.kept !== undefined) {
       el.innerHTML = `⚡ <strong>LIVE</strong> — ${s.checked.toLocaleString()} checks, ` +
         `${s.kept} kept ($${s.dollars.toFixed(2)}) — updated ${s.updated}`;
       el.style.color = '#3fb950';
+    }
+    const p = document.getElementById('runPanel');
+    if (p && s && s.checked !== undefined) {
+      const mins = typeof s.minute === 'number' ? s.minute : null;
+      const rate = mins ? Math.round(s.checked / Math.max(mins, 1)) : '—';
+      const pool = s.pool ? Object.entries(s.pool).map(([k, v]) => `${v} ${k}`).join(' · ') : '—';
+      let html =
+        `<div class="r"><span class="k">⏱ run time</span><span class="v">${mins !== null ? mins + ' min' : s.minute}</span></div>` +
+        `<div class="r"><span class="k">⚡ run rate</span><span class="v">${rate}${rate === '—' ? '' : ' checks/min'}</span></div>` +
+        `<div class="r"><span class="k">🔍 numbers checked</span><span class="v">${(s.checked || 0).toLocaleString()}</span></div>` +
+        `<div class="r"><span class="k">💳 valid cards</span><span class="v">${(s.cards || 0).toLocaleString()}</span></div>` +
+        `<div class="r"><span class="k">💰 with balance</span><span class="v">${(s.balances || 0).toLocaleString()}</span></div>` +
+        `<div class="r"><span class="k">🎯 stocked this run</span><span class="v" style="color:var(--green)">${s.kept} ($${(s.dollars || 0).toFixed(2)})</span></div>` +
+        `<div class="r"><span class="k">🛰 proxy pool</span><span class="v">${pool}</span></div>`;
+      if (s.recent && s.recent.length) {
+        html += '<div class="newcards">' + s.recent.map(x =>
+          `<div class="nc"><span>🆕 ${x.card}</span><span class="v" style="color:var(--green)">$${Number(x.balance).toFixed(2)}</span></div>`
+        ).join('') + '</div>';
+      }
+      p.innerHTML = html;
     }
   } catch (e) { /* offline is fine */ }
 }
@@ -177,10 +206,13 @@ async function loadLiveStatus() {
 let cards = [];
 let sortBy = 'balance';
 let showSold = false;
+let sessionSeen = null;   // card set present when this page opened — later arrivals get NEW badges
 
 async function loadCards() {
   try {
     cards = await fetchJSON('stocked.json');
+    if (sessionSeen === null) sessionSeen = new Set(cards.map(c => c.card));
+    cards.forEach(c => c._new = !sessionSeen.has(c.card));
     const sold = new Set(await loadSold());
     cards.forEach(c => c._sold = sold.has(c.card));
     render();
@@ -224,7 +256,7 @@ function render() {
       <div class="cr-main" onclick="toggleDetail('${c.card}')">
         <div class="balance">$${c.balance.toFixed(2)}</div>
         <div class="cr-info">
-          <div class="cr-num">${c.card}${isWhale ? '<span class="badge whale">🐋</span>' : ''}${isTop ? '<span class="badge whale">top</span>' : ''}</div>
+          <div class="cr-num">${c.card}${c._new ? '<span class="badge new">NEW</span>' : ''}${isWhale ? '<span class="badge whale">🐋</span>' : ''}${isTop ? '<span class="badge whale">top</span>' : ''}</div>
           <div class="cr-meta">${band(c.card)} · since ${fmtDate(c.memberSince)}</div>
         </div>
       </div>
