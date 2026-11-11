@@ -1,12 +1,12 @@
 {
-  "updated": "02:26:08",
-  "minute": "done",
-  "checked": 24369,
-  "cards": 20188,
-  "balances": 8058,
-  "kept": 5,
-  "dollars": 175.62,
+  "updated": "11:48:12",
+  "minute": 1,
+  "checked": 0,
+  "cards": 0,
+  "balances": 0,
+  "kept": 0,
+  "dollars": 0,
   "pool": {
-    "done": 15
+    "warming": 35
   }
 }
