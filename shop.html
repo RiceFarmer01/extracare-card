@@ -100,7 +100,7 @@ let soldRemote = [];   // last known sold.json from the GitHub API (the truth)
 
 // bump on every deploy — open tabs detect the change and reload themselves,
 // so the plain shop.html URL is always the only link anyone needs
-const SHOP_VERSION = '2026-11-11.1';
+const SHOP_VERSION = '2026-11-12.1';
 
 // simple password gate (SHA-256 hash compare, cookie for session)
 async function sha256(s) {
@@ -261,9 +261,9 @@ function render() {
         </div>
       </div>
       <div class="cr-actions">
-        <a href="https://ricefarmer01.github.io/extracare-card/card.html#c=${c.card}&b=${b}&bl=${c.balance.toFixed(2)}&s=${c.memberSince||''}${c.link ? '&cv=' + encodeURIComponent(c.link) : ''}" target="_blank" rel="noopener">
+        <button onclick="shareCard('${c.card}')">
           <span class="icon">📤</span>send
-        </a>
+        </button>
         <a href="${WALLET_URL}${b}&o=${c.balance.toFixed(2)}&s=0.00" target="_blank" rel="noopener">
           <span class="icon">📱</span>wallet
         </a>
@@ -276,6 +276,35 @@ function render() {
       </div>
     </div>`;
   }).join('') || '<div class="empty">No cards — run the bot and push stocked.json</div>';
+}
+
+// native share: opens the phone's share sheet (iMessage etc.) with the card link,
+// then auto-marks the card used once it's actually shared
+async function shareCard(card) {
+  const c = cards.find(x => x.card === card);
+  if (!c) return;
+  const b = c.barcode || c.card;
+  const url = 'https://ricefarmer01.github.io/extracare-card/card.html#c=' + c.card +
+              '&b=' + b + '&bl=' + c.balance.toFixed(2) + '&s=' + (c.memberSince || '') +
+              (c.link ? '&cv=' + encodeURIComponent(c.link) : '');
+  const text = 'Your CVS ExtraCare card — $' + c.balance.toFixed(2) + ' available. ' +
+               'Open this and show it at checkout:';
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: 'CVS ExtraCare Card', text: text, url: url });
+      await markSold(card, true);          // actually shared -> sold
+      toast('📤 shared — marked used', true);
+    } catch (e) {
+      if (e.name === 'AbortError') return; // user backed out of the sheet, keep it available
+      try { await navigator.clipboard.writeText(url); toast('link copied', false); }
+      catch (e2) { toast('share failed', false); }
+    }
+  } else {
+    // no share sheet (desktop): copy link and mark used
+    try { await navigator.clipboard.writeText(url); } catch (e) {}
+    await markSold(card, true);
+    toast('🔗 link copied — marked used', true);
+  }
 }
 
 function toggleDetail(card) { /* future: expand card detail */ }
