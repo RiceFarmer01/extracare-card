@@ -32,6 +32,15 @@
   .badge{display:inline-block;padding:1px 6px;border-radius:4px;font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-left:4px}
   .badge.whale{background:rgba(251,191,36,.15);color:var(--gold)}
   .badge.fresh{background:rgba(59,185,80,.15);color:var(--green)}
+  .badge.cs{background:rgba(251,191,36,.22);color:var(--gold)}
+  .badge.sco{background:rgba(88,166,255,.18);color:#7ab7ff}
+  .exp-soon{color:var(--gold)}
+  .exp-dead{color:var(--red)}
+  .cc-chip{color:var(--green)}
+  .refresh-inv{width:100%;background:var(--card);border:1px solid var(--border);color:var(--dim);
+    border-radius:10px;padding:8px;font-size:.72rem;font-weight:700;cursor:pointer;margin-bottom:8px}
+  .refresh-inv:disabled{opacity:.6}
+  .refresh-inv:active{transform:scale(.98)}
   .cr-actions{display:flex;gap:0;border-top:1px solid var(--border)}
   .cr-actions button,.cr-actions a{flex:1;background:none;border:none;border-right:1px solid var(--border);color:var(--dim);padding:8px 4px;font-size:.68rem;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none}
   .cr-actions button:last-child,.cr-actions a:last-child{border-right:none}
@@ -74,6 +83,7 @@
 <div class="container" id="shop" style="display:none">
   <h1>💳 ExtraCare Shop</h1>
   <div class="sub" id="lastUpdate"></div>
+  <button class="refresh-inv" id="refreshBtn" onclick="requestRefresh()">🔄 refresh all balances</button>
   <div class="runpanel" id="runPanel">⏳ run status loading…</div>
   <div class="summary" id="summary"></div>
   <div class="sort-bar" id="sortBar">
@@ -81,6 +91,7 @@
     <button class="sort-btn" data-sort="card"># Number</button>
     <button class="sort-btn" data-sort="memberSince">📅 Age</button>
     <button class="sort-btn" data-sort="band">🎚 Band</button>
+    <button class="sort-btn" id="csFilter" onclick="toggleCS()">🛎 all cards</button>
   </div>
   <div id="cards"></div>
   <button class="toggle-sold" id="toggleSold" onclick="toggleSold()">👁 show sold</button>
@@ -100,7 +111,7 @@ let soldRemote = [];   // last known sold.json from the GitHub API (the truth)
 
 // bump on every deploy — open tabs detect the change and reload themselves,
 // so the plain shop.html URL is always the only link anyone needs
-const SHOP_VERSION = '2026-11-12.1';
+const SHOP_VERSION = '2026-11-15.1';
 
 // simple password gate (SHA-256 hash compare, cookie for session)
 async function sha256(s) {
@@ -206,11 +217,25 @@ async function loadLiveStatus() {
 let cards = [];
 let sortBy = 'balance';
 let showSold = false;
+let csMode = 'all';        // all -> cs (register only) -> sco (self-checkout)
 let sessionSeen = null;   // card set present when this page opened — later arrivals get NEW badges
+
+const TODAY = new Date().toISOString().slice(0, 10);
+
+function decorate(c) {
+  const rw = c.rw || [];
+  c._cs = rw.some(x => x[2]);
+  c._sco = rw.length > 0 && !c._cs;
+  c._cc = (c.cc || []).filter(x => !x[1] || x[1] >= TODAY).reduce((s, x) => s + x[0], 0);
+  const exps = rw.map(x => x[1]).filter(e => e && e >= TODAY).sort();
+  c._exp = exps[0] || null;
+  c._expSoon = c._exp && c._exp < new Date(Date.now() + 7 * 864e5).toISOString().slice(0, 10);
+  return c;
+}
 
 async function loadCards() {
   try {
-    cards = await fetchJSON('stocked.json');
+    cards = (await fetchJSON('stocked.json')).map(decorate);
     if (sessionSeen === null) sessionSeen = new Set(cards.map(c => c.card));
     cards.forEach(c => c._new = !sessionSeen.has(c.card));
     const sold = new Set(await loadSold());
@@ -233,18 +258,26 @@ function fmtDate(iso) {
 }
 
 function render() {
-  const visible = showSold ? cards : cards.filter(c => !c._sold);
+  let visible = showSold ? cards : cards.filter(c => !c._sold);
+  if (csMode === 'cs') visible = visible.filter(c => c._cs);
+  if (csMode === 'sco') visible = visible.filter(c => c._sco);
   visible.sort((a, b) => sortBy === 'balance' ? b.balance - a.balance
     : sortBy === 'card' ? a.card.localeCompare(b.card)
     : sortBy === 'memberSince' ? (a.memberSince || '9999').localeCompare(b.memberSince || '9999')
     : band(a.card).localeCompare(band(b.card)));
 
-  const total = visible.filter(c => !c._sold).reduce((s, c) => s + c.balance, 0);
+  const avail = visible.filter(c => !c._sold);
+  const total = avail.reduce((s, c) => s + c.balance, 0);
+  const coups = avail.reduce((s, c) => s + c._cc, 0);
   const max = Math.max(...visible.map(c => c.balance), 0);
+  const csCount = cards.filter(c => !c._sold && c._cs).length;
+  const scoCount = cards.filter(c => !c._sold && c._sco).length;
   document.getElementById('summary').innerHTML = `
-    <div class="stat"><div class="v">${visible.filter(c=>!c._sold).length}</div><div class="l">cards</div></div>
-    <div class="stat"><div class="v" style="color:var(--green)">$${total.toFixed(2)}</div><div class="l">total</div></div>
-    <div class="stat"><div class="v" style="color:var(--gold)">$${max.toFixed(2)}</div><div class="l">best</div></div>`;
+    <div class="stat"><div class="v">${avail.length}</div><div class="l">cards</div></div>
+    <div class="stat"><div class="v" style="color:var(--green)">$${total.toFixed(0)}${coups > 0 ? ` <span style="font-size:.6em;color:var(--dim)">+ $${coups.toFixed(0)}🎟</span>` : ''}</div><div class="l">total incl coupons</div></div>
+    <div class="stat"><div class="v" style="color:var(--gold)">$${max.toFixed(2)}</div><div class="l">best</div></div>
+    <div class="stat"><div class="v" style="color:var(--gold)">${csCount}</div><div class="l">🛎 register</div></div>
+    <div class="stat"><div class="v" style="color:#7ab7ff">${scoCount}</div><div class="l">🤖 self-check</div></div>`;
 
   const el = document.getElementById('cards');
   el.innerHTML = visible.map(c => {
@@ -256,8 +289,8 @@ function render() {
       <div class="cr-main" onclick="toggleDetail('${c.card}')">
         <div class="balance">$${c.balance.toFixed(2)}</div>
         <div class="cr-info">
-          <div class="cr-num">${c.card}${c._new ? '<span class="badge new">NEW</span>' : ''}${isWhale ? '<span class="badge whale">🐋</span>' : ''}${isTop ? '<span class="badge whale">top</span>' : ''}</div>
-          <div class="cr-meta">${band(c.card)} · since ${fmtDate(c.memberSince)}</div>
+          <div class="cr-num">${c.card}${c._new ? '<span class="badge new">NEW</span>' : ''}${isWhale ? '<span class="badge whale">🐋</span>' : ''}${isTop ? '<span class="badge whale">top</span>' : ''}${c._cs ? '<span class="badge cs">🛎 CS</span>' : (c._sco ? '<span class="badge sco">🤖 SCO</span>' : '')}</div>
+          <div class="cr-meta">${band(c.card)} · since ${fmtDate(c.memberSince)}${c._cc > 0 ? ` · <span class="cc-chip">+$${c._cc.toFixed(0)}🎟</span>` : ''}${c._exp ? ` · <span class="${c._expSoon ? 'exp-soon' : ''}">exp ${c._exp.slice(5)}</span>` : ''}</div>
         </div>
       </div>
       <div class="cr-actions">
@@ -450,6 +483,43 @@ async function markSold(card, sold) {
     localStorage.setItem('soldPending', JSON.stringify(p));
     toast('⚠️ offline — will sync', false);
   }
+}
+
+// CS filter: all -> register-only (🛎) -> self-checkout (🤖)
+function toggleCS() {
+  csMode = csMode === 'all' ? 'cs' : csMode === 'cs' ? 'sco' : 'all';
+  document.getElementById('csFilter').textContent =
+    csMode === 'cs' ? '🛎 register only' : csMode === 'sco' ? '🤖 self-checkout' : '🛎 all cards';
+  document.getElementById('csFilter').classList.toggle('active', csMode !== 'all');
+  render();
+}
+
+// refresh all balances: asks the bot (via the repo) to re-check every card
+// through its live proxy pool, then reloads when it reports done
+async function requestRefresh() {
+  const btn = document.getElementById('refreshBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ requesting…';
+  try {
+    await ghPut('refresh.json', JSON.stringify({status: 'pending', requested: new Date().toISOString()}), 'refresh requested');
+    btn.textContent = '⏳ refreshing all cards…';
+    for (let i = 0; i < 150; i++) {          // poll up to 10 min
+      await new Promise(r => setTimeout(r, 4000));
+      try {
+        const s = await fetchJSON('refresh.json');
+        if (s && s.status === 'done') {
+          btn.textContent = `✓ ${s.updated || ''} cards refreshed`;
+          await loadCards();
+          setTimeout(() => { btn.disabled = false; btn.textContent = '🔄 refresh all balances'; }, 4000);
+          return;
+        }
+      } catch (e) { /* keep polling */ }
+    }
+    btn.textContent = '⏱ timed out — is a run active?';
+  } catch (e) {
+    btn.textContent = '⚠️ could not request';
+  }
+  setTimeout(() => { btn.disabled = false; btn.textContent = '🔄 refresh all balances'; }, 4000);
 }
 
 function toggleSold() {
