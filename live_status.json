@@ -1,11 +1,11 @@
 {
-  "updated": "17:37:47",
-  "minute": 84,
-  "checked": 16509,
-  "cards": 14511,
-  "balances": 5515,
-  "kept": 7,
-  "dollars": 300.95,
+  "updated": "17:38:51",
+  "minute": 85,
+  "checked": 16721,
+  "cards": 14705,
+  "balances": 5600,
+  "kept": 8,
+  "dollars": 340.39,
   "pool": {
     "live": 15,
     "break": 5
@@ -38,6 +38,10 @@
     {
       "card": "704200980",
       "balance": 51.65
+    },
+    {
+      "card": "704198013",
+      "balance": 39.44
     }
   ]
 }
