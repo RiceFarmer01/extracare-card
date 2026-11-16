@@ -10673,6 +10673,61 @@
     ]
   },
   {
+    "card": "702835569",
+    "balance": 28.06,
+    "memberSince": "2024-09-05",
+    "serial": 716410513815,
+    "barcode": "4767028355692",
+    "link": "https://www.cvs.com/extracare/home/alloffer?id=04MmRlZmQ1OGJlMTBhM2FmNTFiMjRmMDU3NTZmNzNmYmE1NmRhMzNhYzNhYjFhNzgyMGNiN2M1YjgwMmMyYWNjZDA3OTYzMTAwOTkxMDYwMTA1MTgzMTUwMTQ2MTcwMDA%3D",
+    "rw": [
+      [
+        10.0,
+        "2026-12-03",
+        0
+      ],
+      [
+        4.0,
+        "2026-11-24",
+        0
+      ],
+      [
+        8.0,
+        "2026-11-27",
+        0
+      ],
+      [
+        5.0,
+        "2026-11-24",
+        0
+      ],
+      [
+        28.0,
+        "2026-12-13",
+        1
+      ],
+      [
+        0.05,
+        "2027-03-31",
+        0
+      ],
+      [
+        0.01,
+        "2027-03-31",
+        0
+      ]
+    ],
+    "cc": [
+      [
+        4.0,
+        "2026-11-18"
+      ],
+      [
+        4.0,
+        "2026-11-25"
+      ]
+    ]
+  },
+  {
     "card": "705139023",
     "balance": 42.06,
     "memberSince": "2025-07-11",
@@ -11193,57 +11248,6 @@
     "cc": [
       [
         10.0,
-        "2026-11-18"
-      ]
-    ]
-  },
-  {
-    "card": "702835569",
-    "balance": 28.06,
-    "memberSince": "2024-09-05",
-    "serial": 716410513815,
-    "barcode": "4767028355692",
-    "link": "https://www.cvs.com/extracare/home/alloffer?id=04MmRlZmQ1OGJlMTBhM2FmNTFiMjRmMDU3NTZmNzNmYmE1NmRhMzNhYzNhYjFhNzgyMGNiN2M1YjgwMmMyYWNjZDA3OTYzMTAwOTkxMDYwMTA1MTgzMTUwMTQ2MTcwMDA%3D",
-    "rw": [
-      [
-        10.0,
-        "2026-12-03",
-        0
-      ],
-      [
-        4.0,
-        "2026-11-24",
-        0
-      ],
-      [
-        8.0,
-        "2026-11-27",
-        0
-      ],
-      [
-        5.0,
-        "2026-11-24",
-        0
-      ],
-      [
-        28.0,
-        "2026-12-13",
-        1
-      ],
-      [
-        0.05,
-        "2027-03-31",
-        0
-      ],
-      [
-        0.01,
-        "2027-03-31",
-        0
-      ]
-    ],
-    "cc": [
-      [
-        4.0,
         "2026-11-18"
       ]
     ]
