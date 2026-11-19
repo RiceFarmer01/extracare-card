@@ -83,7 +83,10 @@
 <div class="container" id="shop" style="display:none">
   <h1>💳 ExtraCare Shop</h1>
   <div class="sub" id="lastUpdate"></div>
-  <button class="refresh-inv" id="refreshBtn" onclick="requestRefresh()">🔄 refresh all balances</button>
+  <div style="display:flex;gap:8px;margin-bottom:10px">
+    <button class="refresh-inv" id="refreshTopBtn" onclick="requestRefreshTop()" style="flex:1;width:auto">⚡ refresh top 100</button>
+    <button class="refresh-inv" id="refreshBtn" onclick="requestRefresh()" style="flex:1;width:auto">🔄 refresh all</button>
+  </div>
   <div class="runpanel" id="runPanel">⏳ run status loading…</div>
   <div class="summary" id="summary"></div>
   <div class="sort-bar" id="sortBar">
@@ -111,7 +114,7 @@ let soldRemote = [];   // last known sold.json from the GitHub API (the truth)
 
 // bump on every deploy — open tabs detect the change and reload themselves,
 // so the plain shop.html URL is always the only link anyone needs
-const SHOP_VERSION = '2026-11-19.2';
+const SHOP_VERSION = '2026-11-19.3';
 
 // simple password gate (SHA-256 hash compare, cookie for session)
 async function sha256(s) {
@@ -495,32 +498,68 @@ function toggleCS() {
   render();
 }
 
-// refresh all balances: asks the bot (via the repo) to re-check every card
-// through its live proxy pool, then reloads when it reports done
-async function requestRefresh() {
-  const btn = document.getElementById('refreshBtn');
-  btn.disabled = true;
-  btn.textContent = '⏳ requesting…';
+// refresh buttons: ask the bot (via the repo) to re-check cards through its
+// live proxy pool, then reload when it reports done. "top" variant re-checks
+// only the N most valuable cards (balance + live coupons) — the pre-run pass.
+async function activeRun() {
   try {
-    await ghPut('refresh.json', JSON.stringify({status: 'pending', requested: new Date().toISOString()}), 'refresh requested');
-    btn.textContent = '⏳ refreshing all cards…';
-    for (let i = 0; i < 150; i++) {          // poll up to 10 min
-      await new Promise(r => setTimeout(r, 4000));
-      try {
-        const s = await fetchJSON('refresh.json');
-        if (s && s.status === 'done') {
-          btn.textContent = `✓ ${s.updated || ''} cards refreshed`;
-          await loadCards();
-          setTimeout(() => { btn.disabled = false; btn.textContent = '🔄 refresh all balances'; }, 4000);
-          return;
-        }
-      } catch (e) { /* keep polling */ }
-    }
-    btn.textContent = '⏱ timed out — is a run active?';
+    const ls = await fetchJSON('live_status.json');
+    const pool = ls.pool || {};
+    return (pool.live || 0) + (pool.break || 0) > 0;
+  } catch (e) { return false; }
+}
+
+async function pollRefresh(btn, wantTop, idleText) {
+  for (let i = 0; i < 150; i++) {          // poll up to 10 min
+    await new Promise(r => setTimeout(r, 4000));
+    try {
+      const s = await fetchJSON('refresh.json');
+      if (s && s.status === 'done' && (wantTop ? s.top === wantTop : !s.top)) {
+        btn.textContent = `✓ ${s.updated || ''} cards refreshed`;
+        await loadCards();
+        setTimeout(() => { btn.disabled = false; btn.textContent = idleText; }, 4000);
+        return;
+      }
+    } catch (e) { /* keep polling */ }
+  }
+  btn.textContent = '⏱ timed out — is a run active?';
+  setTimeout(() => { btn.disabled = false; btn.textContent = idleText; }, 4000);
+}
+
+async function requestRefreshTop() {
+  const btn = document.getElementById('refreshTopBtn');
+  if (!(await activeRun())) {
+    btn.textContent = '😴 no active run';
+    setTimeout(() => { btn.textContent = '⚡ refresh top 100'; }, 3000);
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = '⏳ refreshing top 100…';
+  try {
+    await ghPut('refresh.json', JSON.stringify({status: 'pending', top: 100, requested: new Date().toISOString()}), 'refresh top 100 requested');
+    await pollRefresh(btn, 100, '⚡ refresh top 100');
   } catch (e) {
     btn.textContent = '⚠️ could not request';
+    setTimeout(() => { btn.disabled = false; btn.textContent = '⚡ refresh top 100'; }, 4000);
   }
-  setTimeout(() => { btn.disabled = false; btn.textContent = '🔄 refresh all balances'; }, 4000);
+}
+
+async function requestRefresh() {
+  const btn = document.getElementById('refreshBtn');
+  if (!(await activeRun())) {
+    btn.textContent = '😴 no active run';
+    setTimeout(() => { btn.textContent = '🔄 refresh all'; }, 3000);
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = '⏳ refreshing all cards…';
+  try {
+    await ghPut('refresh.json', JSON.stringify({status: 'pending', requested: new Date().toISOString()}), 'refresh requested');
+    await pollRefresh(btn, null, '🔄 refresh all');
+  } catch (e) {
+    btn.textContent = '⚠️ could not request';
+    setTimeout(() => { btn.disabled = false; btn.textContent = '🔄 refresh all'; }, 4000);
+  }
 }
 
 function toggleSold() {
