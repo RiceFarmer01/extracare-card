@@ -114,7 +114,7 @@ let soldRemote = [];   // last known sold.json from the GitHub API (the truth)
 
 // bump on every deploy — open tabs detect the change and reload themselves,
 // so the plain shop.html URL is always the only link anyone needs
-const SHOP_VERSION = '2026-11-19.3';
+const SHOP_VERSION = '2026-11-19.4';
 
 // simple password gate (SHA-256 hash compare, cookie for session)
 async function sha256(s) {
@@ -229,7 +229,7 @@ function decorate(c) {
   const rw = c.rw || [];
   c._cs = rw.some(x => x[2]);
   c._sco = rw.length > 0 && !c._cs;
-  c._cc = (c.cc || []).filter(x => !x[1] || x[1] >= TODAY).reduce((s, x) => s + x[0], 0);
+  c._cc = (c.cc || []).filter(x => !x[1] || x[1] >= TODAY).reduce((m, x) => Math.max(m, x[0]), 0);
   c._gc = (c.gc || []).filter(x => !x[1] || x[1] >= TODAY).reduce((m, x) => Math.max(m, x[0]), 0);
   const exps = rw.map(x => x[1]).filter(e => e && e >= TODAY).sort();
   c._exp = exps[0] || null;
