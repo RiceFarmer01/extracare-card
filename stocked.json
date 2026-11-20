@@ -1861,6 +1861,118 @@
     ]
   },
   {
+    "card": "702398299",
+    "balance": 32.62,
+    "memberSince": "2024-08-03",
+    "serial": 718491201463,
+    "barcode": "4767023982992",
+    "link": "https://www.cvs.com/extracare/home/alloffer?id=04ZDllMTVlNDlmYjIxNDc5MmMwMTQ2NWU3MmIzZTBlOGNkZWI3NzI2OTczNjA0ZDZjZTQ5MmNjNmUyNjY5MjAzYjA3OTYzMTAwOTkxMDYwMTAzNjQxMDIxOTQ4MTcwMDA%3D",
+    "rw": [
+      [
+        5.0,
+        "2026-12-07",
+        0
+      ],
+      [
+        26.14,
+        "2026-12-31",
+        0
+      ],
+      [
+        0.25,
+        "2027-03-31",
+        0
+      ],
+      [
+        0.05,
+        "2027-03-31",
+        0
+      ],
+      [
+        0.41,
+        "2027-03-31",
+        0
+      ],
+      [
+        0.37,
+        "2027-03-31",
+        0
+      ],
+      [
+        0.4,
+        "2027-03-31",
+        0
+      ]
+    ],
+    "cc": [
+      [
+        4.0,
+        "2026-11-25"
+      ],
+      [
+        4.0,
+        "2026-11-25"
+      ]
+    ],
+    "gc": [
+      [
+        4.0,
+        "2026-11-21"
+      ]
+    ]
+  },
+  {
+    "card": "705123866",
+    "balance": 26.55,
+    "memberSince": "2025-07-09",
+    "serial": 718492143319,
+    "barcode": "4767051238665",
+    "link": "https://www.cvs.com/extracare/home/alloffer?id=04YjkzOGUzMDUyNWRmNWY4ZjM3ZDAyZGFlMDAxY2I1NTg0ODRhMDU4ZDI0NDQxZmEwMGRjMWExNjg2MjgxOTU5MTA3OTYzMTAwOTkxMDYwMTA5MTMzNDEyOTQ4MTcwMDA%3D",
+    "rw": [
+      [
+        5.0,
+        "2026-12-10",
+        0
+      ],
+      [
+        4.0,
+        "2026-12-10",
+        0
+      ],
+      [
+        5.0,
+        "2026-12-04",
+        0
+      ],
+      [
+        8.0,
+        "2026-12-04",
+        0
+      ],
+      [
+        0.16,
+        "2027-03-31",
+        0
+      ],
+      [
+        2.41,
+        "2027-03-31",
+        0
+      ],
+      [
+        1.98,
+        "2027-03-31",
+        0
+      ]
+    ],
+    "cc": [
+      [
+        4.0,
+        "2026-11-25"
+      ]
+    ]
+  },
+  {
     "card": "705841714",
     "balance": 26.1,
     "memberSince": "2025-08-31",
