@@ -2540,6 +2540,42 @@
     ]
   },
   {
+    "card": "703173064",
+    "balance": 25,
+    "memberSince": "2024-10-11",
+    "serial": 718510464727,
+    "barcode": "4767031730646",
+    "link": "https://www.cvs.com/extracare/home/alloffer?id=04NzgzZDJhNDc1MGYwZWM2MjhjZDcyOTE0MzBjY2NhZDI1MDE0MGNkNzY5ODI3M2E1NDAwNTI1ZjNhZTQyY2JlNzA3OTYzMTAwOTkxMDYwMTA3Mjc0NjQwMTU4MTcwMDA%3D",
+    "rw": [
+      [
+        10.0,
+        "2026-11-25",
+        0
+      ],
+      [
+        5.0,
+        "2026-12-12",
+        0
+      ],
+      [
+        5.0,
+        "2026-12-12",
+        0
+      ],
+      [
+        5.0,
+        "2026-11-25",
+        0
+      ]
+    ],
+    "gc": [
+      [
+        10.0,
+        "2026-11-21"
+      ]
+    ]
+  },
+  {
     "card": "705841714",
     "balance": 26.1,
     "memberSince": "2025-08-31",
