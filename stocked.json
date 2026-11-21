@@ -2938,6 +2938,115 @@
     ]
   },
   {
+    "card": "705241217",
+    "balance": 54.92,
+    "memberSince": "2025-07-19",
+    "serial": 718524648717,
+    "barcode": "4767052412170",
+    "link": "https://www.cvs.com/extracare/home/alloffer?id=04ZjI2N2NlMTlkZWRjMWQ1Y2I2OTVhNzc5ODUyZGUxNTdmMTY0ZDRmMGFjYzUzNmYwZWUyMmE0NDU4NjBkNDcyMjA3OTYzMTAwOTkxMDYwMTA3MTc4NDY0MjU4MTcwMDA%3D",
+    "rw": [
+      [
+        5.0,
+        "2026-12-20",
+        0
+      ],
+      [
+        20.0,
+        "2026-12-06",
+        0
+      ],
+      [
+        8.0,
+        "2026-12-20",
+        0
+      ],
+      [
+        20.0,
+        "2026-12-20",
+        0
+      ],
+      [
+        0.04,
+        "2027-03-31",
+        0
+      ],
+      [
+        0.35,
+        "2027-03-31",
+        0
+      ],
+      [
+        1.53,
+        "2027-03-31",
+        0
+      ]
+    ],
+    "cc": [
+      [
+        10.0,
+        "2026-11-25"
+      ]
+    ],
+    "gc": [
+      [
+        10.0,
+        "2026-11-21"
+      ],
+      [
+        4.0,
+        "2026-11-25"
+      ],
+      [
+        2.0,
+        "2026-11-21"
+      ]
+    ]
+  },
+  {
+    "card": "703511069",
+    "balance": 25.12,
+    "memberSince": "2024-11-17",
+    "serial": 718491530543,
+    "barcode": "4767035110697",
+    "link": "https://www.cvs.com/extracare/home/alloffer?id=04Njc0ZjBmZTEzOGE3NGVkNjc2NjBjZTNhMWQ3MDQwNGI4YjQ1NGJlMDFlZDFiOTZlOTJkYTQxYzIwNmQ0ZDY4MzA3OTYzMTAwOTkxMDYwMTAzNDUwMzUxOTQ4MTcwMDA%3D",
+    "rw": [
+      [
+        10.0,
+        "2026-12-14",
+        0
+      ],
+      [
+        5.0,
+        "2026-12-20",
+        0
+      ],
+      [
+        10.0,
+        "2026-12-16",
+        0
+      ],
+      [
+        0.12,
+        "2027-03-31",
+        0
+      ]
+    ],
+    "gc": [
+      [
+        10.0,
+        "2026-11-21"
+      ],
+      [
+        5.0,
+        "2026-11-21"
+      ],
+      [
+        5.0,
+        "2026-11-21"
+      ]
+    ]
+  },
+  {
     "card": "704151444",
     "balance": 28.06,
     "memberSince": "2025-03-09",
