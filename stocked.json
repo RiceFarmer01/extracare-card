@@ -1237,6 +1237,70 @@
     ]
   },
   {
+    "card": "704292448",
+    "balance": 29.1,
+    "memberSince": "2025-03-29",
+    "serial": 718522189299,
+    "barcode": "4767042924485",
+    "link": "https://www.cvs.com/extracare/home/alloffer?id=04YzQ4ZmI1ZGY0YmFiMDM3MjEyMzMzMjMxNWYxNDI1NTNhYzVjZDkzNzU0ZDMyY2Q1MDAwNzBiMzMzYmJhNGVmNjA3OTYzMTAwOTkxMDYwMTA5OTI5ODEyMjU4MTcwMDA%3D",
+    "rw": [
+      [
+        10.0,
+        "2026-12-01",
+        0
+      ],
+      [
+        6.0,
+        "2026-11-23",
+        0
+      ],
+      [
+        4.0,
+        "2026-11-23",
+        0
+      ],
+      [
+        3.0,
+        "2026-11-23",
+        0
+      ],
+      [
+        5.0,
+        "2026-11-23",
+        0
+      ],
+      [
+        1.1,
+        "2027-03-31",
+        0
+      ]
+    ],
+    "cc": [
+      [
+        1.0,
+        "2026-11-22"
+      ],
+      [
+        4.0,
+        "2026-11-25"
+      ],
+      [
+        1.0,
+        "2026-11-25"
+      ]
+    ],
+    "gc": [
+      [
+        2.0,
+        "2026-11-21"
+      ],
+      [
+        2.0,
+        "2026-11-21"
+      ]
+    ]
+  },
+  {
     "card": "704151444",
     "balance": 28.06,
     "memberSince": "2025-03-09",
@@ -70566,71 +70630,6 @@
     "gc": [
       [
         10.0,
-        "2026-11-21"
-      ]
-    ]
-  },
-  {
-    "card": "704292448",
-    "balance": 29.1,
-    "memberSince": "2025-03-29",
-    "serial": 718522189299,
-    "barcode": "4767042924485",
-    "link": "https://www.cvs.com/extracare/home/alloffer?id=04YzQ4ZmI1ZGY0YmFiMDM3MjEyMzMzMjMxNWYxNDI1NTNhYzVjZDkzNzU0ZDMyY2Q1MDAwNzBiMzMzYmJhNGVmNjA3OTYzMTAwOTkxMDYwMTA5OTI5ODEyMjU4MTcwMDA%3D",
-    "rw": [
-      [
-        10.0,
-        "2026-12-01",
-        0
-      ],
-      [
-        6.0,
-        "2026-11-23",
-        0
-      ],
-      [
-        4.0,
-        "2026-11-23",
-        0
-      ],
-      [
-        3.0,
-        "2026-11-23",
-        0
-      ],
-      [
-        5.0,
-        "2026-11-23",
-        0
-      ],
-      [
-        1.1,
-        "2027-03-31",
-        0
-      ]
-    ],
-    "cc": [
-      [
-        1.0,
-        "2026-11-22"
-      ],
-      [
-        4.0,
-        "2026-11-25"
-      ],
-      [
-        1.0,
-        "2026-11-25"
-      ]
-    ],
-    "checked": "2026-11-20 18:40",
-    "gc": [
-      [
-        2.0,
-        "2026-11-21"
-      ],
-      [
-        2.0,
         "2026-11-21"
       ]
     ]
