@@ -7872,6 +7872,126 @@
     ]
   },
   {
+    "card": "703218981",
+    "balance": 25.32,
+    "memberSince": "2024-10-15",
+    "serial": 718491438847,
+    "barcode": "4767032189818",
+    "link": "https://www.cvs.com/extracare/home/alloffer?id=04MmEyZjAyNWNhM2FiODg0YTRjMzZkZTIwOGZjZjA0MTI0MDAwNzU1Yjg5MjcyMDU2NWE4MDFhZTEyMmUyNWViMjA3OTYzMTAwOTkxMDYwMTA3NDg4MzQxOTQ4MTcwMDA%3D",
+    "rw": [
+      [
+        10.0,
+        "2026-12-19",
+        0
+      ],
+      [
+        5.0,
+        "2026-11-27",
+        0
+      ],
+      [
+        5.0,
+        "2026-12-02",
+        0
+      ],
+      [
+        1.17,
+        "2027-03-31",
+        0
+      ],
+      [
+        0.66,
+        "2027-03-31",
+        0
+      ],
+      [
+        0.95,
+        "2027-03-31",
+        0
+      ],
+      [
+        1.98,
+        "2026-12-31",
+        0
+      ],
+      [
+        0.56,
+        "2027-03-31",
+        0
+      ]
+    ],
+    "cc": [
+      [
+        4.0,
+        "2026-11-25"
+      ],
+      [
+        7.0,
+        "2026-11-25"
+      ]
+    ],
+    "gc": [
+      [
+        2.0,
+        "2026-11-21"
+      ],
+      [
+        4.0,
+        "2026-11-21"
+      ]
+    ]
+  },
+  {
+    "card": "705138085",
+    "balance": 38.56,
+    "memberSince": "2025-07-10",
+    "serial": 718492149125,
+    "barcode": "4767051380852",
+    "link": "https://www.cvs.com/extracare/home/alloffer?id=04YzA3MGE5OWJkNmY5NTdlNjU1N2E5MTU1NTE4ZWNlYjliMmIyZWQ0NGE0NjAyNDc3Y2IzOWI2NzcwMmNjY2FmMzA3OTYzMTAwOTkxMDYwMTA1MjE5NDEyOTQ4MTcwMDA%3D",
+    "rw": [
+      [
+        8.0,
+        "2026-12-18",
+        0
+      ],
+      [
+        3.0,
+        "2026-12-18",
+        0
+      ],
+      [
+        8.0,
+        "2026-12-18",
+        0
+      ],
+      [
+        5.0,
+        "2026-12-18",
+        0
+      ],
+      [
+        3.0,
+        "2026-12-18",
+        0
+      ],
+      [
+        10.0,
+        "2026-12-19",
+        0
+      ],
+      [
+        0.38,
+        "2027-03-31",
+        0
+      ],
+      [
+        1.18,
+        "2027-03-31",
+        0
+      ]
+    ]
+  },
+  {
     "card": "704151444",
     "balance": 28.06,
     "memberSince": "2025-03-09",
