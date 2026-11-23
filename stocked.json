@@ -6322,6 +6322,118 @@
     ]
   },
   {
+    "card": "703998307",
+    "balance": 39.99,
+    "memberSince": "2025-02-10",
+    "serial": 718491702085,
+    "barcode": "4767039983075",
+    "link": "https://www.cvs.com/extracare/home/alloffer?id=04ODU0MWQyZWQ5M2Y0NWI3NzJiYzYwOWQ2ZjJhMzVhMjg2YTA2Njc1ZDQ5NmQ0YWJkNDQxZTgzMmZlMDIyMmI4NzA3OTYzMTAwOTkxMDYwMTA1ODAyMDcxOTQ4MTcwMDA%3D",
+    "rw": [
+      [
+        5.0,
+        "2026-12-22",
+        0
+      ],
+      [
+        3.0,
+        "2026-12-22",
+        0
+      ],
+      [
+        4.0,
+        "2026-12-22",
+        0
+      ],
+      [
+        20.0,
+        "2026-12-22",
+        0
+      ],
+      [
+        6.0,
+        "2026-12-22",
+        0
+      ],
+      [
+        0.34,
+        "2027-03-31",
+        0
+      ],
+      [
+        0.44,
+        "2027-03-31",
+        0
+      ],
+      [
+        0.07,
+        "2027-03-31",
+        0
+      ],
+      [
+        0.62,
+        "2027-03-31",
+        0
+      ],
+      [
+        0.05,
+        "2027-03-31",
+        0
+      ],
+      [
+        0.47,
+        "2027-03-31",
+        0
+      ]
+    ],
+    "gc": [
+      [
+        10.0,
+        "2026-11-28"
+      ]
+    ]
+  },
+  {
+    "card": "705464872",
+    "balance": 27.52,
+    "memberSince": "2025-08-04",
+    "serial": 718492290713,
+    "barcode": "4767054648720",
+    "link": "https://www.cvs.com/extracare/home/alloffer?id=04OGFlYjQ0ODI4NDUzNDEyMTNkZjc2MmI3M2IwMDQzZDk1ZWFjMmYxYTRlNzg0Y2ExNzdjOTY3Y2RjYjY2ZmM4NjA3OTYzMTAwOTkxMDYwMTAzMTcwOTIyOTQ4MTcwMDA%3D",
+    "rw": [
+      [
+        10.0,
+        "2026-12-19",
+        0
+      ],
+      [
+        7.0,
+        "2026-11-25",
+        0
+      ],
+      [
+        5.0,
+        "2026-11-25",
+        0
+      ],
+      [
+        5.0,
+        "2026-12-02",
+        0
+      ],
+      [
+        0.52,
+        "2027-03-31",
+        0
+      ]
+    ],
+    "cc": [
+      [
+        4.0,
+        "2026-11-25"
+      ]
+    ]
+  },
+  {
     "card": "704200699",
     "balance": 26.07,
     "memberSince": "2025-03-16",
