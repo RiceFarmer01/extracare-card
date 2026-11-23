@@ -1,15 +1,15 @@
 {
-  "updated": "08:42:51",
-  "minute": 906,
-  "checked": 303985,
-  "cards": 266329,
-  "balances": 103478,
+  "updated": "08:43:53",
+  "minute": 907,
+  "checked": 304309,
+  "cards": 266605,
+  "balances": 103587,
   "kept": 185,
   "dollars": 6386.28,
   "pool": {
-    "probing": 17,
+    "probing": 18,
     "break": 7,
-    "live": 26
+    "live": 25
   },
   "recent": [
     {
