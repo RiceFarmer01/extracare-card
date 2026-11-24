@@ -9248,6 +9248,117 @@
     ]
   },
   {
+    "card": "705543497",
+    "balance": 48.28,
+    "memberSince": "2025-08-11",
+    "serial": 718492325576,
+    "barcode": "4767055434971",
+    "link": "https://www.cvs.com/extracare/home/alloffer?id=04ZDMxZTY1ZDViMjJiYzMwZDA5MTE4MDlkYzIzOTA4ZTAzYWUyMmNiMmNiMWVhN2I1NTUxYzc3OThlMjZmNTU1ZjA3OTYzMTAwOTkxMDYwMTA2NzU1MjMyOTQ4MTcwMDA%3D",
+    "rw": [
+      [
+        20.0,
+        "2026-12-07",
+        0
+      ],
+      [
+        20.0,
+        "2026-12-10",
+        0
+      ],
+      [
+        8.0,
+        "2026-11-30",
+        0
+      ],
+      [
+        0.28,
+        "2027-03-31",
+        0
+      ]
+    ],
+    "cc": [
+      [
+        4.0,
+        "2026-11-25"
+      ]
+    ],
+    "gc": [
+      [
+        10.0,
+        "2026-11-28"
+      ]
+    ]
+  },
+  {
+    "card": "702521698",
+    "balance": 35.52,
+    "memberSince": "2024-08-14",
+    "serial": 720580704175,
+    "barcode": "4767025216989",
+    "link": "https://www.cvs.com/extracare/home/alloffer?id=04YmNjMjliMzk5Mzk3ZjA4NTRlMDc3ZWQ4Y2VhOWY1YzZhM2EwOGE0YWQ2NDA1MjMxNTY2YmQzYjk5YjNjMTA3MzA3OTYzMTAwOTkxMDYwMTA1NzE0MDcwODUwMjcwMDA%3D",
+    "rw": [
+      [
+        4.0,
+        "2026-12-22",
+        0
+      ],
+      [
+        2.0,
+        "2026-12-22",
+        0
+      ],
+      [
+        6.0,
+        "2026-12-22",
+        0
+      ],
+      [
+        3.0,
+        "2026-12-22",
+        1
+      ],
+      [
+        20.0,
+        "2026-12-21",
+        1
+      ],
+      [
+        0.41,
+        "2027-03-31",
+        0
+      ],
+      [
+        0.06,
+        "2027-03-31",
+        0
+      ],
+      [
+        0.04,
+        "2027-03-31",
+        0
+      ],
+      [
+        0.01,
+        "2027-03-31",
+        0
+      ]
+    ],
+    "gc": [
+      [
+        10.0,
+        "2026-11-28"
+      ],
+      [
+        5.0,
+        "2026-12-26"
+      ],
+      [
+        5.0,
+        "2026-12-26"
+      ]
+    ]
+  },
+  {
     "card": "705631818",
     "balance": 27.34,
     "memberSince": "2025-08-17",
