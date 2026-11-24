@@ -1,21 +1,17 @@
 {
-  "updated": "06:09:13",
-  "minute": 756,
-  "checked": 263106,
-  "cards": 230558,
-  "balances": 89011,
-  "kept": 154,
-  "dollars": 5333.55,
+  "updated": "06:10:16",
+  "minute": 757,
+  "checked": 263408,
+  "cards": 230825,
+  "balances": 89112,
+  "kept": 155,
+  "dollars": 5360.06,
   "pool": {
     "probing": 22,
     "live": 22,
     "break": 6
   },
   "recent": [
-    {
-      "card": "703769560",
-      "balance": 28.05
-    },
     {
       "card": "702589708",
       "balance": 59.31
@@ -59,6 +55,10 @@
     {
       "card": "702521698",
       "balance": 35.52
+    },
+    {
+      "card": "702347806",
+      "balance": 26.51
     }
   ]
 }
