@@ -622,6 +622,116 @@
     ]
   },
   {
+    "card": "705072972",
+    "balance": 41.36,
+    "memberSince": "2025-07-05",
+    "serial": 720612528424,
+    "barcode": "4767050729720",
+    "link": "https://www.cvs.com/extracare/home/alloffer?id=04NTk5MjNkNWFjYmEyYTBiZWY4OTYzYjVmZDE5MWU2Zjc3YTZlZTZjNjNmMDQ0NDk4NzE5ZDZhMTRhNGU5Y2RlNTA3OTYzMTAwOTkxMDYwMTA0MjQ4MjUyMTYwMjcwMDA%3D",
+    "rw": [
+      [
+        10.0,
+        "2026-12-01",
+        0
+      ],
+      [
+        5.0,
+        "2026-12-01",
+        0
+      ],
+      [
+        6.0,
+        "2026-12-01",
+        0
+      ],
+      [
+        5.0,
+        "2026-12-01",
+        0
+      ],
+      [
+        12.87,
+        "2026-12-09",
+        0
+      ],
+      [
+        2.44,
+        "2027-03-31",
+        0
+      ],
+      [
+        0.03,
+        "2027-03-31",
+        0
+      ],
+      [
+        0.02,
+        "2027-03-31",
+        0
+      ]
+    ],
+    "cc": [
+      [
+        4.0,
+        "2026-12-02"
+      ]
+    ],
+    "gc": [
+      [
+        10.0,
+        "2026-11-28"
+      ],
+      [
+        5.0,
+        "2026-12-26"
+      ],
+      [
+        5.0,
+        "2026-12-26"
+      ]
+    ]
+  },
+  {
+    "card": "704680698",
+    "balance": 28.42,
+    "memberSince": "2025-05-31",
+    "serial": 720612366098,
+    "barcode": "4767046806985",
+    "link": "https://www.cvs.com/extracare/home/alloffer?id=04NzliMTc0NzVlNTA5MTI2NDdkMGNlNDAyM2U3NTRjZTA4NDFiODM2Mjc4YTJmNjg4YmE3ODk3ODg4YjYzYjBmODA3OTYzMTAwOTkxMDYwMTA4OTA2NjMyMTYwMjcwMDA%3D",
+    "rw": [
+      [
+        10.0,
+        "2026-12-20",
+        0
+      ],
+      [
+        10.0,
+        "2026-12-16",
+        0
+      ],
+      [
+        8.0,
+        "2026-12-16",
+        0
+      ],
+      [
+        0.35,
+        "2027-03-31",
+        0
+      ],
+      [
+        0.04,
+        "2027-03-31",
+        0
+      ],
+      [
+        0.03,
+        "2027-03-31",
+        0
+      ]
+    ]
+  },
+  {
     "card": "704689955",
     "balance": 23.02,
     "memberSince": "2025-06-01",
