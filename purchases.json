@@ -100,7 +100,17 @@
     "live": {
       "balance": 43.04,
       "cc": 0,
-      "gc": 10.0
+      "gc": 10
     }
+  },
+  {
+    "id": "e9989e9b669bc65e",
+    "user": "ilikecvs",
+    "card": "705682440",
+    "nonce": "493aac31dfda77cf",
+    "proof": "5a74081ed8762e56440f35c1be35000039c4c503b4a31177d5188f20b7679a8d",
+    "type": "buy",
+    "ts": "2026-11-28T01:51:08.262Z",
+    "status": "pending"
   }
 ]
