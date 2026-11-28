@@ -103,8 +103,19 @@
 const GH_REPO = 'RiceFarmer01/extracare-card';
 const GH_TOKEN = ['github_', 'pat_11ATWGF7I08CNb32gMvUV7_vVJI5JW1lS4tk5HSM6gBevNTfSnGwMeLaUrXSMPdFxiNHE3BSLVWjTBt8Bt'].join('');
 const WALLET_URL = 'https://ricefarmer01.github.io/extracare-card/#b=';
-const BUY_VERSION = '2026-11-27.1';
+const BUY_VERSION = '2026-11-27.2';
 const PBKDF2_ITER = 100000;
+
+// self-update: open buyer tabs reload when a new version deploys
+async function checkForUpdate() {
+  try {
+    const r = await fetch('buy.html', { cache: 'no-store' });
+    if (!r.ok) return;
+    const m = (await r.text()).match(/BUY_VERSION = '([^']+)'/);
+    if (m && m[1] !== BUY_VERSION) location.reload();
+  } catch (e) { /* offline is fine */ }
+}
+setInterval(checkForUpdate, 60000);
 
 // ---- crypto (must match keeper.py exactly) ----
 async function pbkdf2Hex(password, saltHex) {
@@ -248,6 +259,9 @@ async function loadCards() {
     const soldSet = new Set(sold);
     cards = stocked.map(decorate).filter(c => !soldSet.has(c.card) && c.balance >= 10);
     cards.sort((a, b) => b._price - a._price);
+    // the top 150 by value are the owner's private reserve (shop.html only) —
+    // buyers see everything from rank 151 down
+    cards = cards.slice(150);
   } catch (e) { cards = []; }
 }
 
