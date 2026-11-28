@@ -130,7 +130,7 @@ let soldRemote = [];   // last known sold.json from the GitHub API (the truth)
 
 // bump on every deploy — open tabs detect the change and reload themselves,
 // so the plain shop.html URL is always the only link anyone needs
-const SHOP_VERSION = '2026-11-27.1';
+const SHOP_VERSION = '2026-11-27.2';
 
 // simple password gate (SHA-256 hash compare, cookie for session)
 async function sha256(s) {
@@ -247,6 +247,7 @@ function decorate(c) {
   c._sco = rw.length > 0 && !c._cs;
   c._cc = (c.cc || []).filter(x => !x[1] || x[1] >= TODAY).reduce((m, x) => Math.max(m, x[0]), 0);
   c._gc = (c.gc || []).filter(x => !x[1] || x[1] >= TODAY).reduce((m, x) => Math.max(m, x[0]), 0);
+  c._total = c.balance + c._cc + c._gc;   // hero number: total value, no math
   const exps = rw.map(x => x[1]).filter(e => e && e >= TODAY).sort();
   c._exp = exps[0] || null;
   c._expSoon = c._exp && c._exp < new Date(Date.now() + 7 * 864e5).toISOString().slice(0, 10);
@@ -307,10 +308,10 @@ function render() {
     return `
     <div class="card-row ${c._sold ? 'sold' : ''} ${isTop ? 'top' : ''}" data-card="${c.card}">
       <div class="cr-main" onclick="toggleDetail('${c.card}')">
-        <div class="balance">$${c.balance.toFixed(2)}</div>
+        <div class="balance">$${c._total.toFixed(2)}</div>
         <div class="cr-info">
           <div class="cr-num">${c.card}${c._new ? '<span class="badge new">NEW</span>' : ''}${isWhale ? '<span class="badge whale">🐋</span>' : ''}${isTop ? '<span class="badge whale">top</span>' : ''}${c._cs ? '<span class="badge cs">🛎 CS</span>' : (c._sco ? '<span class="badge sco">🤖 SCO</span>' : '')}</div>
-          <div class="cr-meta">${band(c.card)} · since ${fmtDate(c.memberSince)}${c._cc > 0 ? ` · <span class="cc-chip">+$${c._cc.toFixed(0)}🎟</span>` : ''}${c._gc > 0 ? ` · <span class="cc-chip">+$${c._gc.toFixed(0)}🪒</span>` : ''}${c._exp ? ` · <span class="${c._expSoon ? 'exp-soon' : ''}">exp ${c._exp.slice(5)}</span>` : ''}</div>
+          <div class="cr-meta">${band(c.card)} · $${c.balance.toFixed(0)} EB · since ${fmtDate(c.memberSince)}${c._cc > 0 ? ` · <span class="cc-chip">+$${c._cc.toFixed(0)}🎟</span>` : ''}${c._gc > 0 ? ` · <span class="cc-chip">+$${c._gc.toFixed(0)}🪒</span>` : ''}${c._exp ? ` · <span class="${c._expSoon ? 'exp-soon' : ''}">exp ${c._exp.slice(5)}</span>` : ''}</div>
         </div>
       </div>
       <div class="cr-actions">

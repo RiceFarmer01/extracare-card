@@ -104,7 +104,7 @@
 const GH_REPO = 'RiceFarmer01/extracare-card';
 const GH_TOKEN = ['github_', 'pat_11ATWGF7I08CNb32gMvUV7_vVJI5JW1lS4tk5HSM6gBevNTfSnGwMeLaUrXSMPdFxiNHE3BSLVWjTBt8Bt'].join('');
 const WALLET_URL = 'https://ricefarmer01.github.io/extracare-card/#b=';
-const BUY_VERSION = '2026-11-27.4';
+const BUY_VERSION = '2026-11-27.5';
 const PBKDF2_ITER = 100000;
 
 // self-update: open buyer tabs reload when a new version deploys
@@ -253,7 +253,8 @@ function decorate(c) {
   const today = new Date().toISOString().slice(0, 10);
   const best = arr => (arr || []).filter(x => !x[1] || x[1] >= today).reduce((m, x) => Math.max(m, x[0]), 0);
   c._cc = best(c.cc); c._gc = best(c.gc);
-  c._price = Math.round((c.balance + c._cc + c._gc) * 10) / 100;
+  c._total = c.balance + c._cc + c._gc;   // hero number: no math required
+  c._price = Math.round(c._total * 10) / 100;
   c._cs = (c.rw || []).some(x => x[2]);
   c._sco = (c.rw || []).length > 0 && !c._cs;
   return c;
@@ -306,10 +307,10 @@ function renderGrid() {
     return `
     <div class="card-row ${isTop ? 'top' : ''}">
       <div class="cr-main">
-        <div class="bal">$${c.balance.toFixed(2)}</div>
+        <div class="bal">$${c._total.toFixed(2)}</div>
         <div class="cr-info">
           <div class="cr-num">${c.card.slice(0, 3)}•••••${c.card.slice(-3)}${c._cs ? '<span class="badge cs">🛎 register</span>' : (c._sco ? '<span class="badge sco">🤖 self-checkout</span>' : '')}</div>
-          <div class="cr-meta">${c._cc > 0 ? `+$${c._cc.toFixed(0)}🎟 ` : ''}${c._gc > 0 ? `+$${c._gc.toFixed(0)}🪒 ` : ''}· your price <strong style="color:var(--gold)">$${c._price.toFixed(2)}</strong> (10% of value)</div>
+          <div class="cr-meta">$${c.balance.toFixed(0)} EB${c._cc > 0 ? ` · +$${c._cc.toFixed(0)}🎟` : ''}${c._gc > 0 ? ` · +$${c._gc.toFixed(0)}🪒` : ''} · your price <strong style="color:var(--gold)">$${c._price.toFixed(2)}</strong></div>
         </div>
       </div>
       <div class="cr-actions">
