@@ -151,7 +151,17 @@
     "live": {
       "balance": 20.3,
       "cc": 0,
-      "gc": 10.0
+      "gc": 10
     }
+  },
+  {
+    "id": "711ff554e1f4bada",
+    "user": "rag",
+    "card": "704107621",
+    "nonce": "629a5d8741413471",
+    "proof": "77f43a8a127ca8e0f3d66144f1075400018a8baf687f92c33f3cec99595c2ed0",
+    "type": "buy",
+    "ts": "2026-11-28T02:20:40.070Z",
+    "status": "pending"
   }
 ]
