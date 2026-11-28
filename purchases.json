@@ -12,8 +12,18 @@
     "live_price": 4.23,
     "live": {
       "balance": 22.34,
-      "cc": 10.0,
-      "gc": 5.0
+      "cc": 10,
+      "gc": 5
     }
+  },
+  {
+    "id": "31d9c1d400f02f46",
+    "user": "jaiden",
+    "card": null,
+    "nonce": "83041f2489d201e9",
+    "proof": "1a67a2ccf5c5386d2644006cfbbbd3821e278271f15e184f9c75b240ae6b62fa",
+    "type": "cancel",
+    "confirm_for": "c7ba8742549269be",
+    "ts": "2026-11-28T01:39:51.998Z"
   }
 ]
