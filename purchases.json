@@ -183,5 +183,15 @@
     "type": "confirm",
     "confirm_for": "711ff554e1f4bada",
     "ts": "2026-11-28T02:20:51.981Z"
+  },
+  {
+    "id": "8f2b87d35b439daa",
+    "user": "rag",
+    "card": "703048427",
+    "nonce": "e66bd5bddb2bc68f",
+    "proof": "281c887e52885c2865b7cdac869a988ea48bc06c78666041ce7abaa13049fecd",
+    "type": "buy",
+    "ts": "2026-11-28T02:41:43.675Z",
+    "status": "pending"
   }
 ]
