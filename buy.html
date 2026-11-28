@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Card Shop</title>
+<style>
+  :root{--bg:#0a0a0f;--card:#161b22;--border:#30363d;--text:#e6edf3;--dim:#8b949e;--green:#3fb950;--red:#f85149;--gold:#fbbf24;--pink:#ff5f8e}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh;padding-bottom:60px}
+  .container{max-width:480px;margin:0 auto;padding:12px 12px 60px}
+  h1{font-size:1.1rem;font-weight:700;text-align:center;padding:14px 0 4px}
+  .sub{text-align:center;color:var(--dim);font-size:.75rem;margin-bottom:10px}
+  .banner{border-radius:10px;padding:8px 12px;font-size:.7rem;font-weight:600;margin-bottom:10px;text-align:center}
+  .banner.live{background:rgba(59,185,80,.08);border:1px solid rgba(59,185,80,.3);color:var(--green)}
+  .banner.asleep{background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.3);color:var(--gold)}
+  .stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;margin-bottom:12px}
+  .stat .v{font-size:1.3rem;font-weight:700;color:var(--green);font-variant-numeric:tabular-nums}
+  .stat .l{font-size:.6rem;text-transform:uppercase;color:var(--dim);letter-spacing:.08em;margin-top:2px}
+  .tabs{display:flex;gap:6px;margin-bottom:10px}
+  .tab{flex:1;background:var(--card);border:1px solid var(--border);color:var(--dim);border-radius:8px;padding:8px;font-size:.8rem;font-weight:700;cursor:pointer}
+  .tab.active{border-color:var(--pink);color:var(--pink)}
+  .card-row{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden}
+  .cr-main{display:flex;align-items:center;padding:12px 14px;gap:12px}
+  .price{font-size:1.35rem;font-weight:700;font-variant-numeric:tabular-nums;color:var(--gold);min-width:80px;text-align:right}
+  .cr-info{flex:1;min-width:0}
+  .cr-num{font-size:.85rem;font-weight:600;font-variant-numeric:tabular-nums}
+  .cr-meta{font-size:.65rem;color:var(--dim);margin-top:2px}
+  .badge{display:inline-block;padding:1px 6px;border-radius:4px;font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-left:4px}
+  .badge.cs{background:rgba(251,191,36,.22);color:var(--gold)}
+  .badge.sco{background:rgba(88,166,255,.18);color:#7ab7ff}
+  .badge.uv{background:rgba(251,191,36,.22);color:var(--gold)}
+  .cr-actions{display:flex;border-top:1px solid var(--border)}
+  .cr-actions button,.cr-actions a{flex:1;background:none;border:none;border-right:1px solid var(--border);color:var(--dim);padding:9px 4px;font-size:.72rem;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none}
+  .cr-actions *:last-child{border-right:none}
+  .cr-actions .icon{font-size:1rem}
+  .buy-btn{color:var(--pink)}
+  #gate{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;padding:2rem}
+  #gate h2{color:var(--pink);font-size:1rem;margin-bottom:1rem}
+  #gate input{background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:12px 16px;font-size:1rem;width:230px;text-align:center;margin-bottom:10px;outline:none}
+  #gate input:focus{border-color:var(--pink)}
+  #gate button{background:var(--pink);border:none;color:#fff;border-radius:8px;padding:10px 24px;font-size:.9rem;font-weight:700;cursor:pointer;width:230px;margin-bottom:10px}
+  #gate .err{color:var(--red);font-size:.75rem;margin-top:4px;display:none}
+  #gate .switch{color:var(--dim);font-size:.75rem;cursor:pointer;text-decoration:underline}
+  #gate.hidden{display:none}
+  .empty{text-align:center;color:var(--dim);padding:3rem 1rem;font-size:.85rem}
+  .toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:.75rem;font-weight:600;z-index:200;opacity:0;transition:opacity .25s;pointer-events:none;max-width:90vw}
+  .toast.show{opacity:1}
+  #modalBg{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:150;padding:1.5rem}
+  #modal{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;max-width:340px;width:100%}
+  #modal h3{font-size:.95rem;margin-bottom:12px}
+  #modal .mrow{display:flex;justify-content:space-between;font-size:.8rem;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+  #modal .mrow .k{color:var(--dim)}
+  #modal .mrow .v{font-weight:700;font-variant-numeric:tabular-nums}
+  #modal button{width:100%;border:none;border-radius:8px;padding:11px;font-size:.85rem;font-weight:700;cursor:pointer;margin-top:8px}
+  #modal .btn-yes{background:var(--green);color:#fff}
+  #modal .btn-no{background:none;border:1px solid var(--border);color:var(--dim)}
+  #modal .btn-close{background:var(--pink);color:#fff}
+  #modal .note{font-size:.65rem;color:var(--dim);margin-top:8px;line-height:1.5}
+  .spinner{display:inline-block;animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div id="gate">
+  <h2>💳 Card Shop</h2>
+  <div id="loginBox">
+    <input id="lUser" placeholder="username" autocomplete="username">
+    <input id="lPass" type="password" placeholder="password" autocomplete="current-password">
+    <button onclick="doLogin()">Sign In</button>
+    <div class="err" id="lErr"></div>
+    <span class="switch" onclick="showRegister()">have an invite code? register →</span>
+  </div>
+  <div id="regBox" style="display:none">
+    <input id="rInvite" placeholder="invite code">
+    <input id="rUser" placeholder="username" autocomplete="username">
+    <input id="rPass" type="password" placeholder="password" autocomplete="new-password">
+    <button onclick="doRegister()">Create Account</button>
+    <div class="err" id="rErr"></div>
+    <span class="switch" onclick="showLogin()">← back to sign in</span>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<div id="modalBg" onclick="if(event.target===this)closeModal()">
+  <div id="modal"></div>
+</div>
+
+<div class="container" id="app" style="display:none">
+  <h1>💳 Card Shop</h1>
+  <div class="sub" id="hello"></div>
+  <div class="banner" id="liveBanner">checking service…</div>
+  <div class="stat"><div class="v" id="myBalance">$0.00</div><div class="l">your balance — top up via admin</div></div>
+  <div class="tabs">
+    <button class="tab active" id="tabShop" onclick="setTab('shop')">🛒 shop</button>
+    <button class="tab" id="tabMine" onclick="setTab('mine')">💳 my cards</button>
+  </div>
+  <div id="grid"></div>
+  <div id="mine" style="display:none"></div>
+</div>
+
+<script>
+const GH_REPO = 'RiceFarmer01/extracare-card';
+const GH_TOKEN = ['github_', 'pat_11ATWGF7I08CNb32gMvUV7_vVJI5JW1lS4tk5HSM6gBevNTfSnGwMeLaUrXSMPdFxiNHE3BSLVWjTBt8Bt'].join('');
+const WALLET_URL = 'https://ricefarmer01.github.io/extracare-card/#b=';
+const BUY_VERSION = '2026-11-27.1';
+const PBKDF2_ITER = 100000;
+
+// ---- crypto (must match keeper.py exactly) ----
+async function pbkdf2Hex(password, saltHex) {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits(
+    { name: 'PBKDF2', salt: enc.encode(saltHex), iterations: PBKDF2_ITER, hash: 'SHA-256' }, key, 256);
+  return [...new Uint8Array(bits)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+async function sha256hex(s) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+function randHex(n) {
+  return [...crypto.getRandomValues(new Uint8Array(n))].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+function proof(h1, nonce) { return sha256hex(h1 + nonce); }
+
+// ---- repo data layer ----
+async function ghGetJSON(path) {
+  const r = await fetch(`https://api.github.com/repos/${GH_REPO}/contents/${path}`, {
+    headers: { Authorization: 'Bearer ' + GH_TOKEN, Accept: 'application/vnd.github.raw' }, cache: 'no-store' });
+  if (r.status === 404) return [];
+  if (!r.ok) throw new Error('GitHub HTTP ' + r.status);
+  const txt = await r.text();
+  return txt ? JSON.parse(txt) : [];
+}
+async function ghPutRetry(path, mutate, msg, tries = 4) {
+  // read-modify-write with 409 retry: mutate(currentObj) returns the new object
+  for (let i = 0; i < tries; i++) {
+    let cur;
+    try { cur = await ghGetJSON(path); } catch (e) { cur = []; }
+    const next = mutate(cur);
+    const url = `https://api.github.com/repos/${GH_REPO}/contents/${path}`;
+    const headers = { Authorization: 'Bearer ' + GH_TOKEN, Accept: 'application/vnd.github+json' };
+    let sha = null;
+    try { const r = await fetch(url, { headers }); if (r.ok) sha = (await r.json()).sha; } catch (e) {}
+    const put = await fetch(url, {
+      method: 'PUT', headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: msg, content: btoa(unescape(encodeURIComponent(JSON.stringify(next, null, 2)))), sha })
+    });
+    if (put.ok) return true;
+    await new Promise(r => setTimeout(r, 1200 + Math.random() * 800));
+  }
+  return false;
+}
+
+// ---- session ----
+function session() { try { return JSON.parse(localStorage.getItem('buyer_session') || 'null'); } catch (e) { return null; } }
+function saveSession(user, h1) { localStorage.setItem('buyer_session', JSON.stringify({ user, h1 })); }
+function logout() { localStorage.removeItem('buyer_session'); location.reload(); }
+
+function showRegister() { document.getElementById('loginBox').style.display = 'none'; document.getElementById('regBox').style.display = ''; }
+function showLogin() { document.getElementById('regBox').style.display = 'none'; document.getElementById('loginBox').style.display = ''; }
+
+async function doLogin() {
+  const user = document.getElementById('lUser').value.trim();
+  const pass = document.getElementById('lPass').value;
+  const err = document.getElementById('lErr');
+  err.style.display = 'none';
+  try {
+    const users = await ghGetJSON('users.json');
+    const u = users[user];
+    if (!u) { err.textContent = 'no such user'; err.style.display = 'block'; return; }
+    const h1 = await pbkdf2Hex(pass, u.salt);
+    if (h1 !== u.hash) { err.textContent = 'wrong password'; err.style.display = 'block'; return; }
+    saveSession(user, h1);
+    enterApp();
+  } catch (e) { err.textContent = 'network error — retry'; err.style.display = 'block'; }
+}
+
+async function doRegister() {
+  const invite = document.getElementById('rInvite').value.trim().toLowerCase();
+  const user = document.getElementById('rUser').value.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+  const pass = document.getElementById('rPass').value;
+  const err = document.getElementById('rErr');
+  err.style.display = 'none';
+  if (!invite || !user || pass.length < 4) { err.textContent = 'fill everything (password 4+ chars)'; err.style.display = 'block'; return; }
+  try {
+    const users = await ghGetJSON('users.json');
+    if (users[user]) { err.textContent = 'username taken'; err.style.display = 'block'; return; }
+    const invites = await ghGetJSON('invites.json');
+    const inv = invites.find(i => i.code === invite && !i.used_by);
+    if (!inv) { err.textContent = 'invite code invalid or already used'; err.style.display = 'block'; return; }
+    const salt = randHex(16);
+    const h1 = await pbkdf2Hex(pass, salt);
+    // write user + burn invite in one pass each (retry handles conflicts)
+    const okU = await ghPutRetry('users.json', cur => ({ ...cur, [user]: { salt, hash: h1, created: new Date().toISOString(), balance: 0 } }), 'buyer: register ' + user);
+    const okI = await ghPutRetry('invites.json', cur => cur.map(i => i.code === invite ? { ...i, used_by: user, used_at: new Date().toISOString() } : i), 'buyer: invite used');
+    if (!okU || !okI) { err.textContent = 'register push failed — retry'; err.style.display = 'block'; return; }
+    saveSession(user, h1);
+    enterApp();
+  } catch (e) { err.textContent = 'network error — retry'; err.style.display = 'block'; }
+}
+
+// ---- app ----
+let liveMode = null;   // null = unknown, true = keeper awake, false = asleep
+let cards = [], purchases = [];
+let tab = 'shop';
+
+async function enterApp() {
+  document.getElementById('gate').classList.add('hidden');
+  document.getElementById('app').style.display = '';
+  const s = session();
+  document.getElementById('hello').textContent = 'hi ' + s.user + ' · tap a card to buy';
+  refreshAll();
+  setInterval(refreshAll, 30000);
+}
+
+async function refreshAll() {
+  await Promise.all([checkHeartbeat(), loadCards(), loadMine()]);
+  renderBalance();
+  renderGrid();
+  renderMine();
+}
+
+async function checkHeartbeat() {
+  try {
+    const hb = await ghGetJSON('heartbeat.json');
+    const ts = hb && hb.ts ? new Date(hb.ts).getTime() : 0;
+    liveMode = (Date.now() - ts) < 5 * 60 * 1000;
+  } catch (e) { liveMode = false; }
+  const b = document.getElementById('liveBanner');
+  if (liveMode) { b.className = 'banner live'; b.textContent = '⚡ live verification active — cards checked at purchase'; }
+  else { b.className = 'banner asleep'; b.textContent = '⚠️ live check unavailable — purchases use last verified values; report any discrepancy to admin'; }
+}
+
+function decorate(c) {
+  const today = new Date().toISOString().slice(0, 10);
+  const best = arr => (arr || []).filter(x => !x[1] || x[1] >= today).reduce((m, x) => Math.max(m, x[0]), 0);
+  c._cc = best(c.cc); c._gc = best(c.gc);
+  c._price = Math.round((c.balance + c._cc + c._gc) * 10) / 100;
+  c._cs = (c.rw || []).some(x => x[2]);
+  c._sco = (c.rw || []).length > 0 && !c._cs;
+  return c;
+}
+
+async function loadCards() {
+  try {
+    const [stocked, sold] = await Promise.all([ghGetJSON('stocked.json'), ghGetJSON('sold.json')]);
+    const soldSet = new Set(sold);
+    cards = stocked.map(decorate).filter(c => !soldSet.has(c.card) && c.balance >= 10);
+    cards.sort((a, b) => b._price - a._price);
+  } catch (e) { cards = []; }
+}
+
+async function loadMine() {
+  try {
+    purchases = await ghGetJSON('purchases.json');
+  } catch (e) { purchases = []; }
+}
+
+function renderBalance() {
+  const s = session();
+  const mine = purchases.filter(p => p.user === s.user && (p.status === 'delivered' || p.status === 'unverified_browser'));
+  // balance = mirror from users.json is display-only; use purchases view for spent
+  ghGetJSON('users.json').then(users => {
+    const bal = (users[s.user] || {}).balance || 0;
+    document.getElementById('myBalance').textContent = '$' + bal.toFixed(2);
+  }).catch(() => {});
+}
+
+function cardLinks(c) {
+  const b = c.barcode || c.card;
+  const share = 'https://ricefarmer01.github.io/extracare-card/card.html#c=' + c.card +
+    '&b=' + b + '&bl=' + c.balance.toFixed(2) + '&s=' + (c.memberSince || '') +
+    (c.link ? '&cv=' + encodeURIComponent(c.link) : '');
+  return { share, wallet: WALLET_URL + b + '&o=' + c.balance.toFixed(2) + '&s=0.00' };
+}
+
+function renderGrid() {
+  const el = document.getElementById('grid');
+  if (tab !== 'shop') { el.innerHTML = ''; return; }
+  el.innerHTML = cards.map(c => {
+    const isTop = c.balance >= 40;
+    return `
+    <div class="card-row ${isTop ? 'top' : ''}">
+      <div class="cr-main">
+        <div class="price">$${c._price.toFixed(2)}</div>
+        <div class="cr-info">
+          <div class="cr-num">${c.card}${c._cs ? '<span class="badge cs">🛎 register</span>' : (c._sco ? '<span class="badge sco">🤖 self-checkout</span>' : '')}</div>
+          <div class="cr-meta">$${c.balance.toFixed(2)} balance${c._cc > 0 ? ` · +$${c._cc.toFixed(0)}🎟` : ''}${c._gc > 0 ? ` · +$${c._gc.toFixed(0)}🪒` : ''} · price = 10%</div>
+        </div>
+      </div>
+      <div class="cr-actions">
+        <button class="buy-btn" onclick="buyCard('${c.card}')"><span class="icon">🛒</span>buy</button>
+      </div>
+    </div>`;
+  }).join('') || '<div class="empty">no cards available right now</div>';
+}
+
+function renderMine() {
+  const el = document.getElementById('mine');
+  if (tab !== 'mine') { el.innerHTML = ''; return; }
+  const s = session();
+  const mine = purchases.filter(p => p.user === s.user &&
+    (p.status === 'delivered' || p.status === 'unverified_browser')).reverse();
+  el.innerHTML = mine.map(p => {
+    const c = cards.find(x => x.card === p.card) ||
+      decorate({ card: p.card, balance: (p.live || {}).balance || 0, cc: [], gc: [], rw: [] });
+    const links = cardLinks(c);
+    return `
+    <div class="card-row">
+      <div class="cr-main">
+        <div class="price">$${(p.price || 0).toFixed(2)}</div>
+        <div class="cr-info">
+          <div class="cr-num">${p.card}${p.status === 'unverified_browser' ? '<span class="badge uv">⚠️ unverified</span>' : ''}</div>
+          <div class="cr-meta">bought ${new Date(p.ts).toLocaleDateString()}</div>
+        </div>
+      </div>
+      <div class="cr-actions">
+        <a href="${links.share}" target="_blank" rel="noopener"><span class="icon">📤</span>open</a>
+        <a href="${links.wallet}" target="_blank" rel="noopener"><span class="icon">📱</span>wallet</a>
+      </div>
+    </div>`;
+  }).join('') || '<div class="empty">no purchases yet</div>';
+}
+
+function setTab(t) {
+  tab = t;
+  document.getElementById('tabShop').classList.toggle('active', t === 'shop');
+  document.getElementById('tabMine').classList.toggle('active', t === 'mine');
+  document.getElementById('grid').style.display = t === 'shop' ? '' : 'none';
+  document.getElementById('mine').style.display = t === 'mine' ? '' : 'none';
+  renderGrid(); renderMine();
+}
+
+// ---- buying ----
+async function buyCard(card) {
+  const c = cards.find(x => x.card === card);
+  if (!c) return;
+  if (liveMode) buyLive(c);
+  else buyOffline(c);
+}
+
+async function buyLive(c) {
+  const s = session();
+  const id = randHex(8), nonce = randHex(8);
+  const pf = await proof(s.h1, nonce);
+  showModal(`<h3>Checking card live <span class="spinner">⏳</span></h3>
+    <div class="note">verifying ${c.card} through the live pool — usually under 30 seconds</div>`);
+  const ok = await ghPutRetry('purchases.json', cur => [...cur, {
+    id, user: s.user, card: c.card, nonce, proof: pf, type: 'buy', ts: new Date().toISOString(), status: 'pending'
+  }], 'buyer: purchase request ' + c.card);
+  if (!ok) { showModal(`<h3>⚠️ request failed</h3><div class="note">couldn't reach the shop — check connection and retry</div><button class="btn-close" onclick="closeModal()">ok</button>`); return; }
+  // poll for the keeper's verdict
+  for (let i = 0; i < 30; i++) {
+    await new Promise(r => setTimeout(r, 4000));
+    try {
+      const ps = await ghGetJSON('purchases.json');
+      const p = ps.find(x => x.id === id);
+      if (!p) continue;
+      if (p.status === 'delivered' || p.status === 'unverified_browser') return showDelivered(p);
+      if (p.status === 'awaiting_confirm') return showMismatch(p);
+      if (p.status === 'rejected') return showRejected(p);
+    } catch (e) { /* keep polling */ }
+  }
+  showModal(`<h3>⏱ still processing</h3><div class="note">the check is taking longer than usual — your purchase is queued; check "my cards" in a minute</div><button class="btn-close" onclick="closeModal()">ok</button>`);
+}
+
+function showDelivered(p) {
+  const c = cards.find(x => x.card === p.card) || { card: p.card, balance: (p.live || {}).balance || 0 };
+  const links = cardLinks({ ...c, barcode: c.barcode, memberSince: c.memberSince, link: c.link });
+  showModal(`
+    <h3>✅ Purchased!</h3>
+    <div class="mrow"><span class="k">card</span><span class="v">${p.card}</span></div>
+    <div class="mrow"><span class="k">paid</span><span class="v" style="color:var(--green)">$${(p.price || 0).toFixed(2)}</span></div>
+    ${p.status === 'unverified_browser' ? '<div class="note">⚠️ sold at last-verified values (live check was unavailable)</div>' : ''}
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <a href="${links.share}" target="_blank" rel="noopener" style="flex:1;text-align:center;background:var(--green);color:#fff;border-radius:8px;padding:11px;font-size:.85rem;font-weight:700;text-decoration:none">📤 open card</a>
+      <a href="${links.wallet}" target="_blank" rel="noopener" style="flex:1;text-align:center;background:none;border:1px solid var(--border);color:var(--text);border-radius:8px;padding:11px;font-size:.85rem;font-weight:700;text-decoration:none">📱 wallet</a>
+    </div>
+    <button class="btn-close" onclick="closeModal();refreshAll()">done</button>`);
+  refreshAll();
+}
+
+function showMismatch(p) {
+  const hp = p.hist_price || 0, lp = p.live_price || 0;
+  const lv = p.live || {};
+  showModal(`
+    <h3>⚠️ Values changed</h3>
+    <div class="note">this card's live numbers differ from the listing — the price adjusts to the live value:</div>
+    <div class="mrow"><span class="k">listed</span><span class="v">$${hp.toFixed(2)}</span></div>
+    <div class="mrow"><span class="k">live balance</span><span class="v">$${(lv.balance || 0).toFixed(2)}</span></div>
+    <div class="mrow"><span class="k">live coupons</span><span class="v">+$${(lv.cc || 0).toFixed(0)}🎟 +$${(lv.gc || 0).toFixed(0)}🪒</span></div>
+    <div class="mrow"><span class="k">new price</span><span class="v" style="color:var(--gold)">$${lp.toFixed(2)}</span></div>
+    <button class="btn-yes" onclick="confirmPurchase('${p.id}')">buy at $${lp.toFixed(2)}</button>
+    <button class="btn-no" onclick="cancelPurchase('${p.id}')">cancel</button>`);
+}
+
+function showRejected(p) {
+  showModal(`<h3>❌ Not completed</h3>
+    <div class="note">${p.reason || 'purchase could not be completed'}</div>
+    <button class="btn-close" onclick="closeModal()">ok</button>`);
+  refreshAll();
+}
+
+async function confirmPurchase(origId) {
+  const s = session();
+  const id = randHex(8), nonce = randHex(8);
+  const pf = await proof(s.h1, nonce);
+  const ok = await ghPutRetry('purchases.json', cur => [...cur, {
+    id, user: s.user, card: null, nonce, proof: pf, type: 'confirm', confirm_for: origId, ts: new Date().toISOString()
+  }], 'buyer: confirm ' + origId);
+  if (!ok) { toast('confirm failed — retry'); return; }
+  showModal(`<h3>Confirming <span class="spinner">⏳</span></h3><div class="note">completing your purchase…</div>`);
+  for (let i = 0; i < 20; i++) {
+    await new Promise(r => setTimeout(r, 4000));
+    try {
+      const ps = await ghGetJSON('purchases.json');
+      const p = ps.find(x => x.id === origId);
+      if (!p) continue;
+      if (p.status === 'delivered') return showDelivered(p);
+      if (p.status === 'rejected') return showRejected(p);
+      if (p.status === 'cancelled') { closeModal(); toast('cancelled'); return; }
+    } catch (e) { /* keep polling */ }
+  }
+  showModal(`<h3>⏱ confirming</h3><div class="note">queued — check "my cards" shortly</div><button class="btn-close" onclick="closeModal()">ok</button>`);
+}
+
+async function cancelPurchase(origId) {
+  const s = session();
+  const id = randHex(8), nonce = randHex(8);
+  const pf = await proof(s.h1, nonce);
+  await ghPutRetry('purchases.json', cur => [...cur, {
+    id, user: s.user, card: null, nonce, proof: pf, type: 'cancel', confirm_for: origId, ts: new Date().toISOString()
+  }], 'buyer: cancel ' + origId);
+  closeModal();
+  toast('cancelled');
+}
+
+async function buyOffline(c) {
+  const s = session();
+  // check the card is still unsold right now
+  const sold = await ghGetJSON('sold.json');
+  if (sold.includes(c.card)) { toast('just sold — pick another', false); refreshAll(); return; }
+  // balance check against the mirror (display value; keeper reconciles the truth)
+  const users = await ghGetJSON('users.json');
+  const bal = (users[s.user] || {}).balance || 0;
+  if (bal < c._price) {
+    showModal(`<h3>❌ Insufficient balance</h3><div class="note">$${bal.toFixed(2)} available, card is $${c._price.toFixed(2)} — top up via admin</div><button class="btn-close" onclick="closeModal()">ok</button>`);
+    return;
+  }
+  // mark sold + record the offline purchase (keeper debits the real ledger on wake)
+  const price = c._price;
+  const okS = await ghPutRetry('sold.json', cur => [...new Set([...cur, c.card])], 'buyer (offline): sold ' + c.card);
+  const okP = await ghPutRetry('purchases.json', cur => [...cur, {
+    id: randHex(8), user: s.user, card: c.card, price, type: 'buy_offline',
+    ts: new Date().toISOString(), status: 'unverified_browser'
+  }], 'buyer (offline): purchase ' + c.card);
+  if (okS && okP) showDelivered({ card: c.card, price, status: 'unverified_browser', live: { balance: c.balance } });
+  else toast('purchase push failed — retry', false);
+  refreshAll();
+}
+
+// ---- modal + toast ----
+function showModal(html) {
+  document.getElementById('modal').innerHTML = html;
+  document.getElementById('modalBg').style.display = 'flex';
+}
+function closeModal() { document.getElementById('modalBg').style.display = 'none'; }
+
+let toastTimer;
+function toast(text) {
+  const el = document.getElementById('toast');
+  el.textContent = text;
+  el.className = 'toast show';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ---- boot ----
+if (session()) enterApp();
+</script>
+</body>
+</html>

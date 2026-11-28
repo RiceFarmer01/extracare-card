@@ -88,6 +88,22 @@
     <button class="refresh-inv" id="refreshBtn" onclick="requestRefresh()" style="flex:1;width:auto">🔄 refresh all</button>
   </div>
   <div class="runpanel" id="runPanel">⏳ run status loading…</div>
+  <button class="refresh-inv" onclick="toggleAdmin()" id="adminToggle" style="margin-bottom:8px">⚙ admin</button>
+  <div class="runpanel" id="adminPanel" style="display:none">
+    <div style="margin-bottom:8px"><strong>🎟 invite code</strong></div>
+    <div style="display:flex;gap:6px;margin-bottom:12px">
+      <button class="refresh-inv" style="flex:1;margin:0" onclick="genInvite()">generate</button>
+      <div id="inviteOut" style="flex:1.4;align-self:center;text-align:center;font-family:monospace;font-size:.85rem;color:var(--gold);word-break:break-all"></div>
+    </div>
+    <div style="margin-bottom:8px"><strong>💵 credit balance</strong></div>
+    <div style="display:flex;gap:6px;margin-bottom:12px">
+      <select id="creditUser" style="flex:1;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px;font-size:.8rem"></select>
+      <input id="creditAmt" type="number" step="0.01" min="0.01" placeholder="$" style="width:70px;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px;font-size:.8rem">
+      <button class="refresh-inv" style="width:auto;margin:0" onclick="creditUser()">add</button>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:4px"><strong>📒 ledger</strong><span style="color:var(--dim)" id="ledgerHint"></span></div>
+    <div id="ledgerView" style="font-size:.7rem"></div>
+  </div>
   <div class="summary" id="summary"></div>
   <div class="sort-bar" id="sortBar">
     <button class="sort-btn active" data-sort="balance">💰 Balance</button>
@@ -114,7 +130,7 @@ let soldRemote = [];   // last known sold.json from the GitHub API (the truth)
 
 // bump on every deploy — open tabs detect the change and reload themselves,
 // so the plain shop.html URL is always the only link anyone needs
-const SHOP_VERSION = '2026-11-19.4';
+const SHOP_VERSION = '2026-11-27.1';
 
 // simple password gate (SHA-256 hash compare, cookie for session)
 async function sha256(s) {
@@ -307,7 +323,7 @@ function render() {
         <button class="verify-btn" data-card="${c.card}" onclick="verifyCard('${c.card}', this)">
           <span class="icon">🔍</span>verify
         </button>
-        <button onclick="markSold('${c.card}', ${!c._sold})">
+        <button onclick="${c._sold ? `markSold('${c.card}', false)` : `confirmMark('${c.card}', this)`}">
           <span class="icon">${c._sold ? '↩' : '✓'}</span>${c._sold ? 'undo' : 'used'}
         </button>
       </div>
@@ -489,6 +505,24 @@ async function markSold(card, sold) {
   }
 }
 
+// two-tap confirm on "used": first tap arms (button flips to "sure?" for 5s),
+// second tap commits. A fat-finger can't double-tap 5s apart. Undo stays instant.
+const armedMarks = new Map();
+function confirmMark(card, btn) {
+  if (armedMarks.has(card)) {
+    clearTimeout(armedMarks.get(card));
+    armedMarks.delete(card);
+    markSold(card, true);
+    return;
+  }
+  const orig = btn.innerHTML;
+  btn.innerHTML = '<span class="icon" style="color:var(--red)">⁉</span>sure?';
+  armedMarks.set(card, setTimeout(() => {
+    armedMarks.delete(card);
+    btn.innerHTML = orig;
+  }, 5000));
+}
+
 // CS filter: all -> register-only (🛎) -> self-checkout (🤖)
 function toggleCS() {
   csMode = csMode === 'all' ? 'cs' : csMode === 'cs' ? 'sco' : 'all';
@@ -568,6 +602,53 @@ function toggleSold() {
   btn.classList.toggle('showing', showSold);
   btn.textContent = showSold ? '🙈 hide sold' : '👁 show sold';
   render();
+}
+
+// ---- admin panel: invites, credits, ledger (owner only, behind the shop pw) ----
+let adminOpen = false;
+function toggleAdmin() {
+  adminOpen = !adminOpen;
+  document.getElementById('adminPanel').style.display = adminOpen ? '' : 'none';
+  if (adminOpen) loadAdmin();
+}
+async function loadAdmin() {
+  try {
+    const users = await ghGetJSON('users.json');
+    const sel = document.getElementById('creditUser');
+    sel.innerHTML = Object.keys(users).sort().map(u => `<option>${u}</option>`).join('') || '<option value="">— no users yet —</option>';
+    await loadLedger();
+  } catch (e) { document.getElementById('ledgerView').textContent = 'could not load: ' + e.message; }
+}
+async function genInvite() {
+  const code = crypto.getRandomValues(new Uint8Array(4));
+  const codeHex = [...code].map(b => b.toString(16).padStart(2, '0')).join('');
+  const invites = await ghGetJSON('invites.json');
+  invites.push({ code: codeHex, created: new Date().toISOString() });
+  const ok = await ghPut('invites.json', JSON.stringify(invites, null, 2), 'admin: invite generated');
+  document.getElementById('inviteOut').textContent = ok ? codeHex : 'push failed — retry';
+}
+async function creditUser() {
+  const user = document.getElementById('creditUser').value;
+  const amount = parseFloat(document.getElementById('creditAmt').value);
+  if (!user || !(amount > 0)) { toast('pick user + amount', false); return; }
+  const log = await ghGetJSON('admin-credits.json');
+  log.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), user, amount, ts: new Date().toISOString() });
+  const ok = await ghPut('admin-credits.json', JSON.stringify(log, null, 2), `admin: credit ${user} $${amount}`);
+  if (ok) { toast(`💵 credited ${user} $${amount.toFixed(2)} — keeper applies in ~30s`, true); document.getElementById('creditAmt').value = ''; }
+  else toast('push failed — retry', false);
+}
+async function loadLedger() {
+  try {
+    const users = await ghGetJSON('users.json');
+    const purchases = await ghGetJSON('purchases.json');
+    const recent = purchases.filter(p => p.user).slice(-12).reverse();
+    let html = Object.entries(users).sort((a, b) => (b[1].balance || 0) - (a[1].balance || 0)).map(([u, v]) =>
+      `<div class="r"><span class="k">${u}</span><span class="v" style="color:var(--green)">$${(v.balance || 0).toFixed(2)}</span></div>`).join('') || '<div class="r"><span class="k">no users</span></div>';
+    html += '<div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(255,255,255,.07)"></div>';
+    html += recent.map(p => `<div class="r"><span class="k">${p.user} · ${p.card}</span><span class="v">$${(p.price || 0).toFixed(2)}${p.status === 'unverified_browser' ? ' ⚠️' : ''}</span></div>`).join('') || '<div class="r"><span class="k">no purchases yet</span></div>';
+    document.getElementById('ledgerView').innerHTML = html;
+    document.getElementById('ledgerHint').textContent = `${purchases.length} transactions`;
+  } catch (e) { document.getElementById('ledgerView').textContent = 'ledger unavailable'; }
 }
 
 document.querySelectorAll('.sort-btn').forEach(btn => {
