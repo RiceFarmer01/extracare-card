@@ -63,5 +63,15 @@
     "ts": "2026-11-28T01:43:40.517Z",
     "status": "rejected",
     "reason": "insufficient balance ($0.00 < $5.32)"
+  },
+  {
+    "id": "0b480abd7fc53d3f",
+    "user": "jaiden",
+    "card": "702983339",
+    "nonce": "d249b7e0f324c73a",
+    "proof": "92a161241bd20aa6747b90f6736ac5581e4a18ee15f976bddbafecc41fe6f2ba",
+    "type": "buy",
+    "ts": "2026-11-28T01:44:03.249Z",
+    "status": "pending"
   }
 ]
