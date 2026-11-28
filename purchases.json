@@ -72,16 +72,7 @@
     "proof": "92a161241bd20aa6747b90f6736ac5581e4a18ee15f976bddbafecc41fe6f2ba",
     "type": "buy",
     "ts": "2026-11-28T01:44:03.249Z",
-    "status": "pending"
-  },
-  {
-    "id": "1ad0f7120c1e34f6",
-    "user": "jaiden",
-    "card": "702983339",
-    "nonce": "ac290d7b74492e76",
-    "proof": "b392dccee63537c7216f27fff518af965bb20c33d6f2b84dffbacd3edcbdabe8",
-    "type": "buy",
-    "ts": "2026-11-28T01:44:32.813Z",
-    "status": "pending"
+    "status": "rejected",
+    "reason": "insufficient balance ($0.00 < $5.51)"
   }
 ]
