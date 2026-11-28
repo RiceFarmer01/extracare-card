@@ -145,6 +145,13 @@
     "proof": "a155c67fc39f96e0d7323c329d4e07f89db7df25d8a0158fb0a907a24de85ef0",
     "type": "buy",
     "ts": "2026-11-28T02:08:28.820Z",
-    "status": "pending"
+    "status": "delivered",
+    "price": 3.03,
+    "verified_at": "2026-11-28T02:08:41Z",
+    "live": {
+      "balance": 20.3,
+      "cc": 0,
+      "gc": 10.0
+    }
   }
 ]
