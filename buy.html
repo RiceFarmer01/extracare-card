@@ -22,6 +22,7 @@
   .tab.active{border-color:var(--pink);color:var(--pink)}
   .card-row{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden}
   .cr-main{display:flex;align-items:center;padding:12px 14px;gap:12px}
+  .bal{font-size:1.35rem;font-weight:700;font-variant-numeric:tabular-nums;color:var(--green);min-width:80px;text-align:right}
   .price{font-size:1.35rem;font-weight:700;font-variant-numeric:tabular-nums;color:var(--gold);min-width:80px;text-align:right}
   .cr-info{flex:1;min-width:0}
   .cr-num{font-size:.85rem;font-weight:600;font-variant-numeric:tabular-nums}
@@ -103,7 +104,7 @@
 const GH_REPO = 'RiceFarmer01/extracare-card';
 const GH_TOKEN = ['github_', 'pat_11ATWGF7I08CNb32gMvUV7_vVJI5JW1lS4tk5HSM6gBevNTfSnGwMeLaUrXSMPdFxiNHE3BSLVWjTBt8Bt'].join('');
 const WALLET_URL = 'https://ricefarmer01.github.io/extracare-card/#b=';
-const BUY_VERSION = '2026-11-27.2';
+const BUY_VERSION = '2026-11-27.3';
 const PBKDF2_ITER = 100000;
 
 // self-update: open buyer tabs reload when a new version deploys
@@ -213,8 +214,13 @@ async function doRegister() {
 
 // ---- app ----
 let liveMode = null;   // null = unknown, true = keeper awake, false = asleep
-let cards = [], purchases = [];
+let cards = [], allStocked = [], purchases = [];
 let tab = 'shop';
+
+// offline purchases the keeper hasn't reconciled yet — counted against the
+// displayed balance so a sleeping keeper can't be overdrafted in one session
+function offlineSpent() { return +(localStorage.getItem('offline_spent') || 0); }
+function addOfflineSpent(p) { localStorage.setItem('offline_spent', String(offlineSpent() + p)); }
 
 async function enterApp() {
   document.getElementById('gate').classList.add('hidden');
@@ -239,7 +245,7 @@ async function checkHeartbeat() {
     liveMode = (Date.now() - ts) < 5 * 60 * 1000;
   } catch (e) { liveMode = false; }
   const b = document.getElementById('liveBanner');
-  if (liveMode) { b.className = 'banner live'; b.textContent = '⚡ live verification active — cards checked at purchase'; }
+  if (liveMode) { b.className = 'banner live'; b.textContent = '⚡ live verification active — cards checked at purchase'; localStorage.removeItem('offline_spent'); }
   else { b.className = 'banner asleep'; b.textContent = '⚠️ live check unavailable — purchases use last verified values; report any discrepancy to admin'; }
 }
 
@@ -257,7 +263,8 @@ async function loadCards() {
   try {
     const [stocked, sold] = await Promise.all([ghGetJSON('stocked.json'), ghGetJSON('sold.json')]);
     const soldSet = new Set(sold);
-    cards = stocked.map(decorate).filter(c => !soldSet.has(c.card) && c.balance >= 10);
+    allStocked = stocked.map(decorate);
+    cards = allStocked.filter(c => !soldSet.has(c.card) && c.balance >= 10);
     cards.sort((a, b) => b._price - a._price);
     // the top 150 by value are the owner's private reserve (shop.html only) —
     // buyers see everything from rank 151 down
@@ -273,11 +280,13 @@ async function loadMine() {
 
 function renderBalance() {
   const s = session();
-  const mine = purchases.filter(p => p.user === s.user && (p.status === 'delivered' || p.status === 'unverified_browser'));
-  // balance = mirror from users.json is display-only; use purchases view for spent
   ghGetJSON('users.json').then(users => {
     const bal = (users[s.user] || {}).balance || 0;
-    document.getElementById('myBalance').textContent = '$' + bal.toFixed(2);
+    const spent = liveMode ? 0 : offlineSpent();
+    const disp = Math.max(bal - spent, 0);
+    document.getElementById('myBalance').textContent = '$' + disp.toFixed(2);
+    document.querySelector('#myBalance + .l').textContent = spent > 0
+      ? 'your balance — $' + spent.toFixed(2) + ' pending purchases' : 'your balance — top up via admin';
   }).catch(() => {});
 }
 
@@ -297,14 +306,14 @@ function renderGrid() {
     return `
     <div class="card-row ${isTop ? 'top' : ''}">
       <div class="cr-main">
-        <div class="price">$${c._price.toFixed(2)}</div>
+        <div class="bal">$${c.balance.toFixed(2)}</div>
         <div class="cr-info">
           <div class="cr-num">${c.card}${c._cs ? '<span class="badge cs">🛎 register</span>' : (c._sco ? '<span class="badge sco">🤖 self-checkout</span>' : '')}</div>
-          <div class="cr-meta">$${c.balance.toFixed(2)} balance${c._cc > 0 ? ` · +$${c._cc.toFixed(0)}🎟` : ''}${c._gc > 0 ? ` · +$${c._gc.toFixed(0)}🪒` : ''} · price = 10%</div>
+          <div class="cr-meta">${c._cc > 0 ? `+$${c._cc.toFixed(0)}🎟 ` : ''}${c._gc > 0 ? `+$${c._gc.toFixed(0)}🪒 ` : ''}· your price <strong style="color:var(--gold)">$${c._price.toFixed(2)}</strong> (10% of value)</div>
         </div>
       </div>
       <div class="cr-actions">
-        <button class="buy-btn" onclick="buyCard('${c.card}')"><span class="icon">🛒</span>buy</button>
+        <button class="buy-btn" onclick="buyCard('${c.card}')"><span class="icon">🛒</span>buy $${c._price.toFixed(2)}</button>
       </div>
     </div>`;
   }).join('') || '<div class="empty">no cards available right now</div>';
@@ -317,7 +326,7 @@ function renderMine() {
   const mine = purchases.filter(p => p.user === s.user &&
     (p.status === 'delivered' || p.status === 'unverified_browser')).reverse();
   el.innerHTML = mine.map(p => {
-    const c = cards.find(x => x.card === p.card) ||
+    const c = allStocked.find(x => x.card === p.card) ||
       decorate({ card: p.card, balance: (p.live || {}).balance || 0, cc: [], gc: [], rw: [] });
     const links = cardLinks(c);
     return `
@@ -380,7 +389,8 @@ async function buyLive(c) {
 }
 
 function showDelivered(p) {
-  const c = cards.find(x => x.card === p.card) || { card: p.card, balance: (p.live || {}).balance || 0 };
+  const c = allStocked.find(x => x.card === p.card) ||
+    decorate({ card: p.card, balance: (p.live || {}).balance || 0, cc: [], gc: [], rw: [] });
   const links = cardLinks({ ...c, barcode: c.barcode, memberSince: c.memberSince, link: c.link });
   showModal(`
     <h3>✅ Purchased!</h3>
@@ -455,9 +465,9 @@ async function buyOffline(c) {
   // check the card is still unsold right now
   const sold = await ghGetJSON('sold.json');
   if (sold.includes(c.card)) { toast('just sold — pick another', false); refreshAll(); return; }
-  // balance check against the mirror (display value; keeper reconciles the truth)
+  // balance check against the mirror minus this session's pending offline buys
   const users = await ghGetJSON('users.json');
-  const bal = (users[s.user] || {}).balance || 0;
+  const bal = ((users[s.user] || {}).balance || 0) - offlineSpent();
   if (bal < c._price) {
     showModal(`<h3>❌ Insufficient balance</h3><div class="note">$${bal.toFixed(2)} available, card is $${c._price.toFixed(2)} — top up via admin</div><button class="btn-close" onclick="closeModal()">ok</button>`);
     return;
@@ -469,7 +479,7 @@ async function buyOffline(c) {
     id: randHex(8), user: s.user, card: c.card, price, type: 'buy_offline',
     ts: new Date().toISOString(), status: 'unverified_browser'
   }], 'buyer (offline): purchase ' + c.card);
-  if (okS && okP) showDelivered({ card: c.card, price, status: 'unverified_browser', live: { balance: c.balance } });
+  if (okS && okP) { addOfflineSpent(price); showDelivered({ card: c.card, price, status: 'unverified_browser', live: { balance: c.balance } }); }
   else toast('purchase push failed — retry', false);
   refreshAll();
 }
