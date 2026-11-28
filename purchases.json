@@ -85,5 +85,15 @@
     "ts": "2026-11-28T01:44:58.260Z",
     "status": "rejected",
     "reason": "insufficient balance ($0.00 < $5.31)"
+  },
+  {
+    "id": "8216df6d290f38dd",
+    "user": "ilikecvs",
+    "card": "703820734",
+    "nonce": "1b21cd11011a334e",
+    "proof": "d33efb962ff3aa803299d4c0f3487dc520b620fa2393578b476b85020691d3ae",
+    "type": "buy",
+    "ts": "2026-11-28T01:48:12.982Z",
+    "status": "pending"
   }
 ]
