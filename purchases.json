@@ -83,6 +83,7 @@
     "proof": "0af99caeff739071f41e65e230138f3667d6b801984c5272973dfec02e47a3db",
     "type": "buy",
     "ts": "2026-11-28T01:44:58.260Z",
-    "status": "pending"
+    "status": "rejected",
+    "reason": "insufficient balance ($0.00 < $5.31)"
   }
 ]
