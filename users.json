@@ -10,5 +10,11 @@
     "hash": "bbaa458127ad20b49fb9f779e783ada1bd85ea94d63a0c4486ec02c29a4f17fc",
     "created": "2026-11-28T01:43:37.516Z",
     "balance": 119.39
+  },
+  "rag": {
+    "salt": "fac7f302720da5f320b64f941c22e19b",
+    "hash": "fccc1c4433e2c2713e65e9db219a07d09b0a486767de2416107b872d630b0b6a",
+    "created": "2026-11-28T02:03:08.259Z",
+    "balance": 0
   }
 }
