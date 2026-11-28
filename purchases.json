@@ -34,7 +34,7 @@
     "proof": "b5d841472fa1c9488d70955382b119d19f77967e949fb96d0a01bb40e132a979",
     "type": "buy",
     "ts": "2026-11-28T01:39:58.349Z",
-    "status": "awaiting_confirm",
+    "status": "cancelled",
     "hist_price": 10.72,
     "live_price": 4.23,
     "live": {
