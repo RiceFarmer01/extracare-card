@@ -167,8 +167,18 @@
     "live_price": 4.89,
     "live": {
       "balance": 28.93,
-      "cc": 10.0,
-      "gc": 10.0
+      "cc": 10,
+      "gc": 10
     }
+  },
+  {
+    "id": "f57d460eeb03968a",
+    "user": "rag",
+    "card": null,
+    "nonce": "813cdca564627091",
+    "proof": "b3a2f5b72cb1bb5bfa134aed50073c1d3f1aefe41d1024924f21913c2f21868b",
+    "type": "confirm",
+    "confirm_for": "711ff554e1f4bada",
+    "ts": "2026-11-28T02:20:51.981Z"
   }
 ]
