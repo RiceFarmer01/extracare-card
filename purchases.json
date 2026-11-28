@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "id": "c7ba8742549269be",
+    "user": "jaiden",
+    "card": "703588782",
+    "nonce": "33bffab97cce22cb",
+    "proof": "5b8cf3256a34794515003d54fafbe114c77207f111cc608cdaa1be43dc015211",
+    "type": "buy",
+    "ts": "2026-11-28T01:39:23.365Z",
+    "status": "pending"
+  }
+]
