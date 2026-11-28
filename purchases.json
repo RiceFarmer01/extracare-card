@@ -25,5 +25,15 @@
     "type": "cancel",
     "confirm_for": "c7ba8742549269be",
     "ts": "2026-11-28T01:39:51.998Z"
+  },
+  {
+    "id": "5aa429396a843399",
+    "user": "jaiden",
+    "card": "703588782",
+    "nonce": "4d451611bdb23bc8",
+    "proof": "b5d841472fa1c9488d70955382b119d19f77967e949fb96d0a01bb40e132a979",
+    "type": "buy",
+    "ts": "2026-11-28T01:39:58.349Z",
+    "status": "pending"
   }
 ]
