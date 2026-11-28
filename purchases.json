@@ -73,5 +73,15 @@
     "type": "buy",
     "ts": "2026-11-28T01:44:03.249Z",
     "status": "pending"
+  },
+  {
+    "id": "1ad0f7120c1e34f6",
+    "user": "jaiden",
+    "card": "702983339",
+    "nonce": "ac290d7b74492e76",
+    "proof": "b392dccee63537c7216f27fff518af965bb20c33d6f2b84dffbacd3edcbdabe8",
+    "type": "buy",
+    "ts": "2026-11-28T01:44:32.813Z",
+    "status": "pending"
   }
 ]
