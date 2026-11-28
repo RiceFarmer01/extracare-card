@@ -7,6 +7,13 @@
     "proof": "5b8cf3256a34794515003d54fafbe114c77207f111cc608cdaa1be43dc015211",
     "type": "buy",
     "ts": "2026-11-28T01:39:23.365Z",
-    "status": "pending"
+    "status": "awaiting_confirm",
+    "hist_price": 10.72,
+    "live_price": 4.23,
+    "live": {
+      "balance": 22.34,
+      "cc": 10.0,
+      "gc": 5.0
+    }
   }
 ]
